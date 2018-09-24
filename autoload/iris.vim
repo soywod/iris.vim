@@ -16,30 +16,25 @@ let s:const = {
   \},
 \}
 
-" ------------------------------------------------------------------ # Connect #
+" ----------------------------------------------------------------- # Password #
 
-function! iris#connect()
+function! iris#password()
   if s:password == ''
     let s:password = inputsecret(
       \'Iris password :' .
       \"\n> "
     \)
   endif
-endfunction
 
-" --------------------------------------------------------------- # Disconnect #
-
-function! iris#disconnect()
-  python3 'disconnect()'
+  return s:password
 endfunction
 
 " --------------------------------------------------------------------- # Read #
 
-function! iris#read()
-  call iris#connect()
+function! iris#read(id)
   redraw | echo 'Fetching mail...'
 
-  let id = get_focused_mail_id()
+  let id = a:id ? a:id : s:get_focused_mail_id()
   let mail = py3eval('read(' . id . ')')
 
   echo mail
@@ -48,10 +43,7 @@ endfunction
 " ----------------------------------------------------------------- # Read all #
 
 function! iris#read_all()
-  call iris#connect()
   redraw | echo 'Fetching mails...'
-  execute 'python3 import sys; sys.path.insert(0, "' . iris#imapclient() . '")'
-  execute 'py3file ' . iris#api()
 
   let columns = s:const.column
   let labels  = s:const.label

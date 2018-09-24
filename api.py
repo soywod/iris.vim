@@ -1,34 +1,54 @@
 #!/usr/bin/env python3
 
+import chardet
+import email
+import hashlib
 import quopri
 import re
 import urllib
 import vim
+import webbrowser
 
 from base64 import b64decode
+from email import policy
+from email.parser import BytesParser
 from datetime import date, datetime
 from functools import reduce
 from imapclient.imapclient import IMAPClient
 
-client = IMAPClient(host=vim.vars['iris_host'])
+client = None
 
 def connect():
+    global client
+    client = IMAPClient(host=vim.vars['iris_host'])
+
     email = vim.vars['iris_email']
-    password = vim.eval('password')
+    password = vim.eval('iris#password()')
 
     client.login(email, password)
     client.select_folder('INBOX', readonly=True)
-
-def disconnect():
-    client.logout()
 
 def read(id):
     connect()
 
     sort = client.search(['UID', id])
-    response = client.fetch(sort, ['BODY[TEXT]'])
+    response = client.fetch(sort, ['BODY[]'])
 
-    print(response.items())
+    for [id, data] in response.items():
+        mail = BytesParser(policy=policy.default).parsebytes(data[b'BODY[]'])
+        body = mail.get_body(preferencelist=['html', 'plain'])
+        hash = hashlib.sha1(mail.get('Message-ID').encode())
+        path = '/tmp/%s.html' % hash.hexdigest()
+
+        tmp = open(path, 'w')
+
+        try:
+            tmp.write(quopri.decodestring(body.get_payload()).decode())
+        except:
+            tmp.write(body.get_payload(decode=True).decode())
+
+        tmp.close()
+        webbrowser.open_new(path)
     return dict()
 
 def read_all():

@@ -37,4 +37,4 @@ highlight default link IrisSeparator  VertSplit
 
 highlight IrisHead term=bold,underline cterm=bold,underline gui=bold,underline
 
-let b:current_syntax = 'klist'
+let b:current_syntax = 'iris'

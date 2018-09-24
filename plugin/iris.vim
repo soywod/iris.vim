@@ -13,6 +13,5 @@ function! iris#imapclient()
   return s:imapclient
 endfunction
 
-augroup kronos
-  autocmd VimLeave * call iris#disconnect()
-augroup END
+execute 'python3 import sys; sys.path.insert(0, "' . iris#imapclient() . '")'
+execute 'py3file ' . iris#api()

@@ -4,4 +4,4 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-nnoremap <silent> <buffer> <cr> :call iris#mail#read() <cr>
+nnoremap <silent> <buffer> <cr> :call iris#read(0) <cr>
