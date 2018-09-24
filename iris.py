@@ -32,9 +32,14 @@ def imap_connect():
         for match in matches:
             headers[match[0]] = match[1]
 
-        msg_subject = decode(headers['Subject'])
-        msg_from = decode(headers['From'])
-        messages.append(' - '.join([str(id), msg_subject, msg_from, data[b'INTERNALDATE'].strftime('%x')]))
+        message = dict()
+        message['id'] = str(id)
+        message['subject'] = decode(headers['Subject'])
+        message['from'] = decode(headers['From'])
+        message['date'] = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
+        message['flags'] = '!'
+
+        messages.append(message)
 
     return messages
 
