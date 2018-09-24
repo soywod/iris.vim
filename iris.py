@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import re
-import vim
-import urllib
 import quopri
+import re
+import urllib
+import vim
 
+from base64 import b64decode
 from datetime import date, datetime
 from functools import reduce
 from imapclient.imapclient import IMAPClient
@@ -31,11 +32,19 @@ def imap_connect():
         for match in matches:
             headers[match[0]] = match[1]
 
-        try:
-            subject = quopri.decodestring(headers['Subject']).decode()
-        except:
-            subject = urllib.parse.unquote(headers['Subject'])
-
-        messages.append(' - '.join([str(id), subject, headers['From'], data[b'INTERNALDATE'].strftime('%x')]))
+        msg_subject = decode(headers['Subject'])
+        msg_from = decode(headers['From'])
+        messages.append(' - '.join([str(id), msg_subject, msg_from, data[b'INTERNALDATE'].strftime('%x')]))
 
     return messages
+
+def decode(string):
+    match = re.match('^=\?(.*?)\?(.*?)\?(.*?)\?=$', string) 
+    if (match == None): return string
+
+    string_decoded = match.group(3)
+
+    if (match.group(2).upper() == 'B'):
+        string_decoded = b64decode(string_decoded)
+
+    return quopri.decodestring(string_decoded).decode(match.group(1))
