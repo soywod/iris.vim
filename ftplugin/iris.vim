@@ -4,4 +4,4 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-" nnoremap <silent> <buffer> q     :bdelete                          <cr>
+nnoremap <silent> <buffer> <cr> :call iris#mail#read() <cr>

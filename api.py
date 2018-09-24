@@ -10,7 +10,7 @@ from datetime import date, datetime
 from functools import reduce
 from imapclient.imapclient import IMAPClient
 
-def imap_connect():
+def connect():
     host = vim.vars['iris_host']
     email = vim.vars['iris_email']
     password = vim.eval('password')
@@ -19,7 +19,7 @@ def imap_connect():
     client.login(email, password)
     client.select_folder('INBOX', readonly=True)
 
-    sort = client.search(['NOT', 'DELETED', 'SINCE', date(2018, 9, 1)])
+    sort = client.search(['NOT', 'DELETED', 'SINCE', date(2018, 9, 28)])
     response = client.fetch(sort, ['BODY.PEEK[HEADER]', 'INTERNALDATE'])
     client.logout()
 
@@ -39,7 +39,7 @@ def imap_connect():
         message['date'] = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
         message['flags'] = '!'
 
-        messages.append(message)
+        messages.insert(message)
 
     return messages
 
