@@ -10,38 +10,55 @@ from datetime import date, datetime
 from functools import reduce
 from imapclient.imapclient import IMAPClient
 
+client = IMAPClient(host=vim.vars['iris_host'])
+
 def connect():
-    host = vim.vars['iris_host']
     email = vim.vars['iris_email']
     password = vim.eval('password')
 
-    client = IMAPClient(host=host)
     client.login(email, password)
     client.select_folder('INBOX', readonly=True)
 
-    sort = client.search(['NOT', 'DELETED', 'SINCE', date(2018, 9, 28)])
-    response = client.fetch(sort, ['BODY.PEEK[HEADER]', 'INTERNALDATE'])
+def disconnect():
     client.logout()
 
-    messages = []
+def read(id):
+    connect()
+
+    sort = client.search(['UID', id])
+    response = client.fetch(sort, ['BODY[TEXT]'])
+
+    print(response.items())
+    return dict()
+
+def read_all():
+    connect()
+
+    mails = []
+    sort = client.search(['NOT', 'DELETED', 'SINCE', date(2018, 9, 20)])
+    response = client.fetch(sort, ['ENVELOPE'])
 
     for [id, data] in response.items():
-        headers = {}
-        matches = re.findall('(.*?): (.*?)\r\n', data[b'BODY[HEADER]'].decode())
+        mail = dict()
+        envelope = data[b'ENVELOPE']
+        subject = decode(envelope.subject.decode())
+        from_ = envelope.from_[0]
+        date_ = envelope.date.strftime('%d/%m/%y, %Hh%M')
 
-        for match in matches:
-            headers[match[0]] = match[1]
+        if (from_.name == None):
+            from_ = '@'.join([decode(from_.mailbox.decode()), decode(from_.host.decode())])
+        else:
+            from_ = decode(from_.name.decode())
 
-        message = dict()
-        message['id'] = str(id)
-        message['subject'] = decode(headers['Subject'])
-        message['from'] = decode(headers['From'])
-        message['date'] = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
-        message['flags'] = '!'
+        mail['id'] = id
+        mail['subject'] = subject.replace('_', ' ')
+        mail['from'] = from_
+        mail['date'] = date_
+        mail['flags'] = '!'
 
-        messages.insert(message)
+        mails.insert(0, mail)
 
-    return messages
+    return mails
 
 def decode(string):
     match = re.match('^=\?(.*?)\?(.*?)\?(.*?)\?=$', string) 

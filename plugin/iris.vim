@@ -12,3 +12,7 @@ endfunction
 function! iris#imapclient()
   return s:imapclient
 endfunction
+
+augroup kronos
+  autocmd VimLeave * call iris#disconnect()
+augroup END

@@ -3,11 +3,10 @@ if exists('b:current_syntax')
 endif
 
 function! s:SetSyntax()
-  let columns = ['id', 'from', 'subject', 'date', 'flags']
+  let columns = ['from', 'subject', 'date', 'flags']
   let widths  = {
-    \'id': 6,
-    \'from': 25,
-    \'subject': 27,
+    \'from': 21,
+    \'subject': 37,
     \'date': 16,
     \'flags': 6,
   \}
