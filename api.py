@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import chardet
 import email
-import hashlib
 import quopri
 import re
 import urllib
@@ -10,11 +8,12 @@ import vim
 import webbrowser
 
 from base64 import b64decode
+from datetime import date, datetime
 from email import policy
 from email.parser import BytesParser
-from datetime import date, datetime
 from functools import reduce
 from imapclient.imapclient import IMAPClient
+from os import path
 
 client = None
 
@@ -31,25 +30,65 @@ def connect():
 def read(id):
     connect()
 
+    output = dict(text=None, html=None, attachments=[])
+
     sort = client.search(['UID', id])
-    response = client.fetch(sort, ['BODY[]'])
+    res  = client.fetch(sort, ['BODY[]'])
+    if not res: return output
 
-    for [id, data] in response.items():
-        mail = BytesParser(policy=policy.default).parsebytes(data[b'BODY[]'])
-        body = mail.get_body(preferencelist=['html', 'plain'])
-        hash = hashlib.sha1(mail.get('Message-ID').encode())
-        path = '/tmp/%s.html' % hash.hexdigest()
+    [uid, raw_mail] = res.popitem()
+    mail = BytesParser(policy=policy.default).parsebytes(raw_mail[b'BODY[]'])
 
-        tmp = open(path, 'w')
+    for part in mail.walk():
+        if part.is_multipart():
+            continue
 
-        try:
-            tmp.write(quopri.decodestring(body.get_payload()).decode())
-        except:
-            tmp.write(body.get_payload(decode=True).decode())
+        if part.is_attachment():
+            output['attachments'].append(_read_attachment(part, uid))
+            continue
 
+        if part.get_content_type() == 'text/plain':
+            output['text'] = _read_text(part)
+            continue
+
+        if part.get_content_type() == 'text/html':
+            output['html'] = _read_html(part, uid)
+            continue
+
+    if output['html'] and not output['text']:
+        tmp = open(output['html'], 'r')
+        output['text'] = tmp.read()
         tmp.close()
-        webbrowser.open_new(path)
-    return dict()
+
+    return output
+
+def preview(path):
+    webbrowser.open_new(path)
+
+def _read_text(part):
+    payload = part.get_payload(decode=True)
+    try: return quopri.decodestring(payload).decode()
+    except: return payload.decode()
+
+def _read_html(part, uid):
+    payload = _read_text(part)
+    preview = _write_preview(payload.encode(), uid)
+    return preview
+
+def _read_attachment(part, uid):
+    payload = part.get_payload(decode=True)
+    preview = _write_preview(payload, uid, part.get_content_subtype())
+    return preview
+
+def _write_preview(payload, uid, subtype='html'):
+    preview = '/tmp/preview-%d.%s' % (uid, subtype)
+
+    if not path.exists(preview):
+        tmp = open(preview, 'wb')
+        tmp.write(payload)
+        tmp.close()
+
+    return preview
 
 def read_all():
     connect()

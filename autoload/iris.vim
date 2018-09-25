@@ -1,4 +1,5 @@
 let s:password = ''
+let s:mail = {}
 let s:mails = []
 let s:const = {
   \'column': ['from', 'subject', 'date', 'flags'],
@@ -35,9 +36,20 @@ function! iris#read(id)
   redraw | echo 'Fetching mail...'
 
   let id = a:id ? a:id : s:get_focused_mail_id()
-  let mail = py3eval('read(' . id . ')')
+  let s:mail = py3eval('read(' . id . ')')
+  let s:mail.text = substitute(s:mail.text, '', '', 'g')
 
-  echo mail
+  silent! edit Iris viewer
+  call append(0, split(s:mail.text, '\n'))
+  normal! ddgg
+  setlocal filetype=iris-viewer
+endfunction
+
+" ------------------------------------------------------------------ # Preview #
+
+function! iris#preview()
+  redraw | echo 'Previewing mail...'
+  execute 'python3 preview("'. s:mail.html .'")'
 endfunction
 
 " ----------------------------------------------------------------- # Read all #
