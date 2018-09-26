@@ -1,107 +1,48 @@
 let s:password = ''
-let s:mail = {}
-let s:mails = []
-let s:const = {
-  \'column': ['from', 'subject', 'date', 'flags'],
-  \'width': {
-    \'from': 21,
-    \'subject': 37,
-    \'date': 16,
-    \'flags': 6,
-  \},
-  \'label': {
-    \'from': 'FROM',
-    \'subject': 'SUBJECT',
-    \'date': 'DATE',
-    \'flags': 'FLAGS',
-  \},
-\}
+let s:socket = 0
 
-" ----------------------------------------------------------------- # Password #
+" ------------------------------------------------------------- # Start server #
 
-function! iris#password()
-  if s:password == ''
-    let s:password = inputsecret(
-      \'Iris password :' .
-      \"\n> "
-    \)
-  endif
+function! iris#start_server()
+  let prompt = '[Iris] Password for ' . g:iris_email . ':' . "\n> "
+  let s:password = inputsecret(prompt)
+  if empty(s:password) | return | endif
 
-  return s:password
+  let server = iris#server()
+  let socket = iris#socket()
+  let command = join(['python3', server, socket], ' ')
+
+  return jobstart(command, {})
 endfunction
 
-" --------------------------------------------------------------------- # Read #
+" -------------------------------------------------------------------- # Login #
 
-function! iris#read(id)
-  redraw | echo 'Fetching mail...'
+function! iris#login()
+  redraw | echo 'Connecting...'
+  let s:socket = sockconnect('pipe', iris#socket(), {'on_data': 'iris#on_data'})
 
-  let id = a:id ? a:id : s:get_focused_mail_id()
-  let s:mail = py3eval('read(' . id . ')')
-  let s:mail.text = substitute(s:mail.text, '', '', 'g')
+  let payload = {'type': 'login'}
+  let payload.host = g:iris_host
+  let payload.email = g:iris_email
+  let payload.password = s:password
 
-  silent! edit Iris viewer
-  call append(0, split(s:mail.text, '\n'))
-  normal! ddgg
-  setlocal filetype=iris-viewer
+  call chansend(s:socket, json_encode(payload))
 endfunction
 
-" ------------------------------------------------------------------ # Preview #
+function! iris#on_data(id, raw_request, event)
+  for raw_request in a:raw_request[:-1]
+    let request = json_decode(raw_request)
 
-function! iris#preview()
-  redraw | echo 'Previewing mail...'
-  execute 'python3 preview("'. s:mail.html .'")'
-endfunction
+    if request.type == 'login'
+      redraw | echo 'Listing mails...'
+      call iris#controller#seq(request)
+      let response = {'type': 'list', 'seq': request.seq }
+      return chansend(s:socket, json_encode(response))
+    endif
 
-" ----------------------------------------------------------------- # Read all #
-
-function! iris#read_all()
-  redraw | echo 'Fetching mails...'
-
-  let columns = s:const.column
-  let labels  = s:const.label
-
-  let header  = [filter(copy(s:const.label), 'index(columns, v:key) + 1')]
-  let s:mails = py3eval('read_all()')
-
-  let thead = map(copy(header), function('s:PrintHead'))
-  let tbody = map(copy(s:mails), function('s:PrintBody'))
-
-  silent! edit Iris
-  call append(0, thead + tbody)
-  normal! ddgg
-  setlocal filetype=iris
-endfunction
-
-" ------------------------------------------------------------------ # Helpers #
-
-function! s:PrintHead(_, header)
-  return s:PrintRow(a:header)
-endfunction
-
-function! s:PrintBody(_, mail)
-  return s:PrintRow(a:mail)
-endfunction
-
-function! s:PrintRow(row)
-  let columns = s:const.column
-  let widths  = s:const.width
-
-  return join(map(
-    \copy(columns),
-    \'s:PrintProp(a:row[v:val], widths[v:val])',
-  \), '')[:78] . ' '
-endfunction
-
-function! s:PrintProp(prop, maxlen)
-  let maxlen = a:maxlen - 2
-  let proplen = strdisplaywidth(a:prop[:maxlen]) + 1
-
-  return a:prop[:maxlen] . repeat(' ', a:maxlen - proplen) . '|'
-endfunction
-
-function! s:get_focused_mail_id()
-  let index = line('.') - 2
-  if  index == -1 | throw 'mail-not-found' | endif
-
-  return get(s:mails, index).id
+    if request.type == 'list'
+      redraw | echo 'Done!'
+      return iris#controller#list(request)
+    endif
+  endfor
 endfunction

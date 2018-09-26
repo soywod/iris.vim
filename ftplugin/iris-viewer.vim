@@ -4,4 +4,4 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-nnoremap <silent> <buffer> p :call iris#preview() <cr>
+nnoremap <silent> <buffer> p :call iris#controller#preview() <cr>

@@ -8,6 +8,7 @@ A simple mail client for Vim.
     - [ ] Add pagination
   - [X] Preview `text/plain` mails
   - [X] Preview `text/html` mails in browser
+  - [X] Set imap server as daemon (via sockets)
   - [ ] Preview / download attachments
   - [ ] Send a new mail
   - [ ] Reply to a mail

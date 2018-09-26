@@ -4,4 +4,4 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-nnoremap <silent> <buffer> <cr> :call iris#read(0) <cr>
+nnoremap <silent> <buffer> <cr> :call iris#controller#info({'index': line('.') - 2}) <cr>
