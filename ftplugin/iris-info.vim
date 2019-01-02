@@ -4,4 +4,4 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-nnoremap <silent> <buffer> p :call iris#controller#preview() <cr>
+nnoremap <buffer><nowait><silent> gp :call iris#ui#info('html')<CR>

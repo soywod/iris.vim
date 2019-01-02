@@ -17,4 +17,4 @@ highlight default link iris_table_flag      Comment
 
 highlight iris_table_head term=bold,underline cterm=bold,underline gui=bold,underline
 
-let b:current_syntax = 'ilist'
+let b:current_syntax = 'iris-list'
