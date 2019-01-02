@@ -64,7 +64,7 @@ function! iris#utils#log(msg)
   redraw | echom msg
 endfunction
 
-function! iris#utils#error_log(msg)
+function! iris#utils#elog(msg)
   let msg = printf('Iris: %s', a:msg)
   redraw | echohl ErrorMsg | echom msg | echohl None
 endfunction

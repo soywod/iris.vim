@@ -13,7 +13,9 @@ endfunction
 function! iris#server#start()
   if s:started | return | endif
 
+  call iris#utils#log('starting the server...')
   execute 'call iris#server#' . s:editor . '#start()'
+
   call iris#server#login()
 
   let s:started = 1
@@ -25,6 +27,7 @@ function! iris#server#login()
   let prompt = 'Iris: password for ' . g:iris_email . ':' . "\n> "
   let password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
 
+  call iris#utils#log('logging in...')
   call iris#server#send({
     \'type': 'login',
     \'host': g:iris_host,
@@ -36,6 +39,7 @@ endfunction
 " ---------------------------------------------------------- # Read all emails #
 
 function! iris#server#read_all_emails()
+  call iris#utils#log('reading emails...')
   call iris#server#send({
     \'type': 'read-all-emails',
     \'seq': iris#db#read('seq', 0),
@@ -55,20 +59,22 @@ function! iris#server#handle_data(data_raw)
   let data = json_decode(a:data_raw)
 
   if !data.success
-    return iris#utils#error_log('server: ' . string(data))
+    return iris#utils#elog('server: ' . string(data))
   endif
 
   if data.type == 'login'
     call iris#db#write('seq', data.seq)
+    call iris#utils#log('logged in!')
 
   elseif data.type == 'read-all-emails'
     call iris#db#write('emails', data.emails)
     call iris#ui#list()
+    redraw | echo
   endif
 endfunction
 
 " ------------------------------------------------------------- # Handle close #
 
 function! iris#server#handle_close()
-  call iris#utils#error_log('server: connection lost')
+  call iris#utils#elog('server: connection lost')
 endfunction
