@@ -4,7 +4,6 @@ import json
 import os
 import quopri
 import re
-import socket as s
 import sys
 
 from base64 import b64decode
@@ -22,8 +21,8 @@ def get_last_seq():
     except:
         return 0
 
-def get_mails(seq):
-    mails = []
+def get_emails(seq):
+    emails = []
     criteria = ['NOT', 'DELETED']
 
     if (seq > 29):
@@ -44,23 +43,23 @@ def get_mails(seq):
         else:
             from_ = decode(from_.name.decode())
 
-        mail = dict()
-        mail['uid'] = uid
-        mail['subject'] = subject.replace('_', ' ')
-        mail['from'] = from_
-        mail['date'] = date_
-        mail['flags'] = '!'
-        mail['content'] = get_mail_content(uid, data[b'BODY[]'])
+        email = dict()
+        email['uid'] = uid
+        email['subject'] = subject.replace('_', ' ')
+        email['from'] = from_
+        email['date'] = date_
+        email['flags'] = '!'
+        email['content'] = get_email_content(uid, data[b'BODY[]'])
 
-        mails.insert(0, mail)
+        emails.insert(0, email)
 
-    return mails
+    return emails
 
-def get_mail_content(uid, data):
+def get_email_content(uid, data):
     content = dict(text=None, html=None, attachments=[])
-    mail = BytesParser(policy=policy.default).parsebytes(data)
+    email = BytesParser(policy=policy.default).parsebytes(data)
 
-    for part in mail.walk():
+    for part in email.walk():
         if part.is_multipart():
             continue
 
@@ -121,31 +120,23 @@ def decode(string):
 
     return quopri.decodestring(string_decoded).decode(match.group(1))
 
-default_socket_file = '%s/iris.sock' % os.environ.get('XDG_RUNTIME_DIR', '/tmp')
+while True:
+    request_raw = sys.stdin.readline()
 
-socket = s.socket(s.AF_UNIX, s.SOCK_STREAM)
-socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-socket_file = sys.argv[1] if len(sys.argv) > 1 else default_socket_file
-
-try: os.remove(socket_file)
-except OSError: pass
-
-socket.bind(socket_file)
-socket.listen(1)
-
-client, address = socket.accept()
-
-while 1:
-    request = json.loads(client.recv(4096))
+    try:
+        request = json.loads(request_raw.rstrip())
+    except:
+        continue
 
     if request['type'] == 'login':
         imap = IMAPClient(host=request['host'])
         imap.login(request['email'], request['password'])
         imap.select_folder('INBOX', readonly=True)
         response = dict(success=True, type='login', seq=get_last_seq())
-        client.send(json.dumps(response).encode())
 
-    elif request['type'] == 'list':
-        mails = get_mails(request['seq'])
-        response = dict(success=True, type='list', mails=mails)
-        client.send(json.dumps(response).encode())
+    elif request['type'] == 'read-all-emails':
+        emails = get_emails(request['seq'])
+        response = dict(success=True, type='read-all-emails', emails=emails)
+
+    sys.stdout.write(json.dumps(response))
+    sys.stdout.flush()
