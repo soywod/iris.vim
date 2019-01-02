@@ -1,3 +1,2 @@
 /doc/tags
-/.database
-/.sync
+*.swp

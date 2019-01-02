@@ -17,12 +17,19 @@ imap = None
 def get_last_seq():
     search = imap.search(['NOT', 'DELETED', '*'])
     fetch = imap.fetch(search, ['UID'])
-    return fetch.popitem()[1][b'SEQ']
+    try:
+        return fetch.popitem()[1][b'SEQ']
+    except:
+        return 0
 
 def get_mails(seq):
     mails = []
-    
-    search = imap.search(['NOT', 'DELETED', '%d:%d' % (seq, seq - 29)])
+    criteria = ['NOT', 'DELETED']
+
+    if (seq > 29):
+        criteria.append('%d:%d' % (seq, seq - 29))
+
+    search = imap.search(criteria)
     fetch = imap.fetch(search, ['ENVELOPE', 'BODY[]'])
 
     for [uid, data] in fetch.items():
