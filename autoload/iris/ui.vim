@@ -14,7 +14,8 @@ let s:config = {
 
 " --------------------------------------------------------------------- # List #
 
-function! iris#ui#list()
+function! iris#ui#list_emails()
+  redraw | echo
   let emails = iris#db#read('emails', [])
 
   silent! bdelete 'Iris'
@@ -27,7 +28,8 @@ endfunction
 
 " --------------------------------------------------------------------- # Info #
 
-function! iris#ui#info(type)
+function! iris#ui#preview_email(type)
+  redraw | echo
   let emails = iris#db#read('emails', [])
   let index = line('.') - 2
   if  index == -1 | throw 'email not found' | endif
@@ -41,12 +43,63 @@ function! iris#ui#info(type)
     silent! edit Iris preview
     call append(0, split(email.content.text, '\n'))
     normal! ddgg
-    setlocal filetype=iris-info
+    setlocal filetype=iris-preview
 
   elseif a:type == 'html'
     let url = email.content.html
     execute 'python3 import webbrowser; webbrowser.open_new("'.url.'")'
   endif
+endfunction
+
+" ---------------------------------------------------------------------- # New #
+
+function! iris#ui#new()
+  redraw | echo
+  silent! edit Iris new
+
+  let lines = ['To: ', 'CC: ', 'BCC: ', 'Subject: ', '---', '']
+
+  call append(0, lines)
+  normal! ddgg$
+  setlocal filetype=iris-new
+  let &modified = 0
+endfunction
+
+" --------------------------------------------------------------- # Save draft #
+
+function! iris#ui#save_draft()
+  call iris#db#write('draft', getline(1, '$'))
+  call iris#utils#log('draft saved!')
+
+  let &modified = 0
+endfunction
+
+" --------------------------------------------------------------- # Send draft #
+
+function! iris#ui#send_draft()
+  redraw | echo
+  let email = {}
+  let draft = iris#db#read('draft', [])
+
+  let email.from = g:iris_email
+  let email.to = iris#utils#trim(split(draft[0], ':')[1])
+  let email.message = join(draft[5:], "\r\n")
+
+  let cc = iris#utils#trim(split(draft[1], ':')[1])
+  if !empty(cc) | let email.cc = cc | endif
+
+  let bcc = iris#utils#trim(split(draft[2], ':')[1])
+  if !empty(bcc) | let email.bcc = bcc | endif
+
+  let subject = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
+  if !empty(subject) | let email.subject = subject | endif
+
+  silent! bdelete
+
+  call iris#utils#log('sending email...')
+  call iris#server#send(iris#utils#assign(email, {
+    \'type': 'send-email',
+  \}))
 endfunction
 
 " ------------------------------------------------------------------ # Renders #

@@ -36,12 +36,12 @@ function! iris#server#login()
   \})
 endfunction
 
-" ---------------------------------------------------------- # Read all emails #
+" ------------------------------------------------------------- # Fetch emails #
 
-function! iris#server#read_all_emails()
-  call iris#utils#log('reading emails...')
+function! iris#server#fetch_emails()
+  call iris#utils#log('fetching emails...')
   call iris#server#send({
-    \'type': 'read-all-emails',
+    \'type': 'fetch-emails',
     \'seq': iris#db#read('seq', 0),
   \})
 endfunction
@@ -59,17 +59,21 @@ function! iris#server#handle_data(data_raw)
   let data = json_decode(a:data_raw)
 
   if !data.success
-    return iris#utils#elog('server: ' . string(data))
+    return iris#utils#elog('server: ' . string(data.error))
   endif
 
   if data.type == 'login'
     call iris#db#write('seq', data.seq)
     call iris#utils#log('logged in!')
 
-  elseif data.type == 'read-all-emails'
+  elseif data.type == 'fetch-emails'
     call iris#db#write('emails', data.emails)
-    call iris#ui#list()
+    call iris#ui#list_emails()
     redraw | echo
+
+  elseif data.type == 'send-email'
+    call iris#db#write('draft', [])
+    call iris#utils#log('email sent!')
   endif
 endfunction
 

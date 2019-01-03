@@ -1,21 +1,32 @@
 #!/usr/bin/env python3
 
 import json
+import logging
 import os
 import quopri
 import re
+import smtplib
 import sys
 
 from base64 import b64decode
 from email import policy
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from email.parser import BytesParser
 from imapclient.imapclient import IMAPClient
 
-imap = None
+logging.basicConfig(filename='iris.log', level=logging.INFO)
+
+_imap = None
+_smtp = None
+
+_host = None
+_email = None
+_password = None
 
 def get_last_seq():
-    search = imap.search(['NOT', 'DELETED', '*'])
-    fetch = imap.fetch(search, ['UID'])
+    search = _imap.search(['NOT', 'DELETED', '*'])
+    fetch = _imap.fetch(search, ['UID'])
     try:
         return fetch.popitem()[1][b'SEQ']
     except:
@@ -28,8 +39,8 @@ def get_emails(seq):
     if (seq > 29):
         criteria.append('%d:%d' % (seq, seq - 29))
 
-    search = imap.search(criteria)
-    fetch = imap.fetch(search, ['ENVELOPE', 'BODY[]'])
+    search = _imap.search(criteria)
+    fetch = _imap.fetch(search, ['ENVELOPE', 'BODY[]'])
 
     for [uid, data] in fetch.items():
         envelope = data[b'ENVELOPE']
@@ -129,14 +140,52 @@ while True:
         continue
 
     if request['type'] == 'login':
-        imap = IMAPClient(host=request['host'])
-        imap.login(request['email'], request['password'])
-        imap.select_folder('INBOX', readonly=True)
-        response = dict(success=True, type='login', seq=get_last_seq())
+        try:
+            _host = request['host']
+            _email = request['email']
+            _password = request['password']
 
-    elif request['type'] == 'read-all-emails':
-        emails = get_emails(request['seq'])
-        response = dict(success=True, type='read-all-emails', emails=emails)
+            _imap = IMAPClient(host=_host)
+            _imap.login(_email, _password)
+            _imap.select_folder('INBOX', readonly=True)
+
+            response = dict(success=True, type='login', seq=get_last_seq())
+        except Exception as error:
+            response = dict(success=False, type='login', error=str(error))
+
+    elif request['type'] == 'fetch-emails':
+        try:
+            emails = get_emails(request['seq'])
+            response = dict(success=True, type='fetch-emails', emails=emails)
+        except Exception as error:
+            response = dict(success=False, type='fetch-emails', error=str(error))
+
+    elif request['type'] == 'send-email':
+        try:
+            logging.info(request)
+            email = MIMEMultipart()
+
+            email['From'] = request['from']
+            email['To'] = request['to']
+            email['Subject'] = request['subject'] if request['subject'] else ''
+
+            # if request['cc']:
+            #     email['cc'] = request['cc']
+
+            # if request['bcc']:
+            #     email['bcc'] = request['cc']
+
+            email.attach(MIMEText(request['message'], 'plain'))
+
+            smtp = smtplib.SMTP(_host)
+            smtp.starttls()
+            smtp.login(_email, _password)
+            smtp.sendmail(email['From'], email['To'], email.as_string())
+            smtp.quit()
+
+            response = dict(success=True, type='send-email')
+        except Exception as error:
+            response = dict(success=False, type='send-email', error=str(error))
 
     sys.stdout.write(json.dumps(response))
     sys.stdout.flush()
