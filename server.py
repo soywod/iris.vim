@@ -147,9 +147,10 @@ while True:
 
             _imap = IMAPClient(host=_host)
             _imap.login(_email, _password)
-            _imap.select_folder('INBOX', readonly=True)
 
-            response = dict(success=True, type='login', seq=get_last_seq())
+            folders = list(map(lambda folder: folder[2], _imap.list_folders()))
+
+            response = dict(success=True, type='login', folders=folders)
         except Exception as error:
             response = dict(success=False, type='login', error=str(error))
 
@@ -159,6 +160,16 @@ while True:
             response = dict(success=True, type='fetch-emails', emails=emails)
         except Exception as error:
             response = dict(success=False, type='fetch-emails', error=str(error))
+
+    elif request['type'] == 'select-folder':
+        try:
+            folder = request['folder']
+            _imap.select_folder(folder, readonly=True)
+            seq = get_last_seq()
+            emails = get_emails(seq)
+            response = dict(success=True, type='select-folder', folder=folder, seq=seq, emails=emails)
+        except Exception as error:
+            response = dict(success=False, type='select-folder', error=str(error))
 
     elif request['type'] == 'send-email':
         try:

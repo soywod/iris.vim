@@ -46,6 +46,16 @@ function! iris#server#fetch_emails()
   \})
 endfunction
 
+" ------------------------------------------------------------ # Select folder #
+
+function! iris#server#select_folder(folder)
+  call iris#utils#log('selecting folder...')
+  call iris#server#send({
+    \'type': 'select-folder',
+    \'folder': a:folder,
+  \})
+endfunction
+
 " --------------------------------------------------------------------- # Send #
 
 function! iris#server#send(data)
@@ -63,8 +73,15 @@ function! iris#server#handle_data(data_raw)
   endif
 
   if data.type == 'login'
-    call iris#db#write('seq', data.seq)
+    call iris#db#write('folders', data.folders)
     call iris#utils#log('logged in!')
+
+  elseif data.type == 'select-folder'
+    call iris#db#write('folder', data.folder)
+    call iris#db#write('seq', data.seq)
+    call iris#db#write('emails', data.emails)
+    call iris#ui#list_emails()
+    call iris#utils#log('folder changed!')
 
   elseif data.type == 'fetch-emails'
     call iris#db#write('emails', data.emails)

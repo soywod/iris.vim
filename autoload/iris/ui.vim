@@ -18,12 +18,24 @@ function! iris#ui#list_emails()
   redraw | echo
   let emails = iris#db#read('emails', [])
 
-  silent! bdelete 'Iris'
+  silent! bdelete Iris
   silent! edit Iris
 
   call append(0, s:render('list', emails))
   normal! ddgg
   setlocal filetype=iris-list
+endfunction
+
+" ------------------------------------------------------------ # Select folder #
+
+function! iris#ui#select_folder()
+  let folder  = iris#db#read('folder', 'INBOX')
+  let folders = iris#db#read('folders', [])
+
+  echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ', ') . ': '
+  let choice = nr2char(getchar())
+
+  call iris#server#select_folder(folders[choice])
 endfunction
 
 " --------------------------------------------------------------------- # Info #
