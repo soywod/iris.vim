@@ -40,14 +40,15 @@ def get_emails(seq):
         criteria.append('%d:%d' % (seq, seq - 29))
 
     search = _imap.search(criteria)
-    fetch = _imap.fetch(search, ['ENVELOPE', 'BODY[]'])
+    fetch = _imap.fetch(search, ['ENVELOPE', 'INTERNALDATE', 'BODY[]'])
 
     for [uid, data] in fetch.items():
-        envelope = data[b'ENVELOPE']
+        logging.info(data)
 
+        envelope = data[b'ENVELOPE']
         subject = decode(envelope.subject.decode())
         from_ = envelope.from_[0]
-        date_ = envelope.date.strftime('%d/%m/%y, %Hh%M')
+        date_ = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
 
         if (from_.name == None):
             from_ = '@'.join([decode(from_.mailbox.decode()), decode(from_.host.decode())])
@@ -174,25 +175,14 @@ while True:
     elif request['type'] == 'send-email':
         try:
             logging.info(request)
-            email = MIMEMultipart()
-
-            email['From'] = request['from']
-            email['To'] = request['to']
-            email['Subject'] = request['subject'] if request['subject'] else ''
-
-            # if request['cc']:
-            #     email['cc'] = request['cc']
-
-            # if request['bcc']:
-            #     email['bcc'] = request['cc']
-
-            email.attach(MIMEText(request['message'], 'plain'))
 
             smtp = smtplib.SMTP(_host)
             smtp.starttls()
             smtp.login(_email, _password)
-            smtp.sendmail(email['From'], email['To'], email.as_string())
+            smtp.sendmail(request['from'], request['to'], request['message'])
             smtp.quit()
+
+            _imap.append('Sent', request['message'])
 
             response = dict(success=True, type='send-email')
         except Exception as error:

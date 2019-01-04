@@ -95,23 +95,30 @@ function! iris#ui#send_draft()
 
   let email.from = g:iris_email
   let email.to = iris#utils#trim(split(draft[0], ':')[1])
-  let email.message = join(draft[5:], "\r\n")
+  let headers = ['From: ' . email.from, 'To: ' . email.to]
 
   let cc = iris#utils#trim(split(draft[1], ':')[1])
-  if !empty(cc) | let email.cc = cc | endif
+  if !empty(cc)
+    let email.cc = cc
+    let headers += ['CC: ' . cc]
+  endif
 
   let bcc = iris#utils#trim(split(draft[2], ':')[1])
-  if !empty(bcc) | let email.bcc = bcc | endif
+  if !empty(bcc)
+    let email.bcc = bcc
+    let headers += ['BCC: ' . bcc]
+  endif
 
   let subject = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
-  if !empty(subject) | let email.subject = subject | endif
+  if !empty(subject)
+    let email.subject = subject
+    let headers += ['Subject: ' . subject]
+  endif
+
+  let email.message = join(headers, "\r\n") . "\r\n\r\n" . join(draft[5:], "\r\n")
 
   silent! bdelete
-
-  call iris#utils#log('sending email...')
-  call iris#server#send(iris#utils#assign(email, {
-    \'type': 'send-email',
-  \}))
+  call iris#server#send_email(email)
 endfunction
 
 " ------------------------------------------------------------------ # Renders #

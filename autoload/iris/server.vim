@@ -56,6 +56,15 @@ function! iris#server#select_folder(folder)
   \})
 endfunction
 
+" --------------------------------------------------------------- # Send email #
+
+function! iris#server#send_email(email)
+  call iris#utils#log('sending email...')
+  call iris#server#send(iris#utils#assign(a:email, {
+    \'type': 'send-email',
+  \}))
+endfunction
+
 " --------------------------------------------------------------------- # Send #
 
 function! iris#server#send(data)
