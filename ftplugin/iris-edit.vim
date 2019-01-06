@@ -11,9 +11,9 @@ setlocal foldmethod=expr
 setlocal nowrap
 setlocal startofline
 
-nnoremap <buffer><nowait><silent> gs :call iris#ui#send_draft()<CR>
+nnoremap <buffer><nowait><silent> gs :call iris#email#ui#send()<CR>
 
 augroup iris
   autocmd! * <buffer>
-  autocmd  BufWriteCmd <buffer> call iris#ui#save_draft()
+  autocmd  BufWriteCmd <buffer> call iris#email#ui#save()
 augroup end

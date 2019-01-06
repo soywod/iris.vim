@@ -14,7 +14,7 @@ let s:config = {
 
 " --------------------------------------------------------------------- # List #
 
-function! iris#ui#list_emails()
+function! iris#email#ui#list()
   redraw | echo
   let emails = iris#db#read('emails', [])
 
@@ -26,21 +26,9 @@ function! iris#ui#list_emails()
   setlocal filetype=iris-list
 endfunction
 
-" ------------------------------------------------------------ # Select folder #
+" ------------------------------------------------------------------ # Preview #
 
-function! iris#ui#select_folder()
-  let folder  = iris#db#read('folder', 'INBOX')
-  let folders = iris#db#read('folders', [])
-
-  echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ', ') . ': '
-  let choice = nr2char(getchar())
-
-  call iris#server#select_folder(folders[choice])
-endfunction
-
-" --------------------------------------------------------------------- # Info #
-
-function! iris#ui#preview_email(type)
+function! iris#email#ui#preview(type)
   redraw | echo
   let emails = iris#db#read('emails', [])
   let index = line('.') - 2
@@ -63,32 +51,40 @@ function! iris#ui#preview_email(type)
   endif
 endfunction
 
-" ---------------------------------------------------------------------- # New #
+" --------------------------------------------------------------------- # Edit #
 
-function! iris#ui#new()
+function! iris#email#ui#edit(email)
   redraw | echo
-  silent! edit Iris new
+  silent! bdelete 'Iris edit'
+  silent! edit Iris edit
 
-  let lines = ['To: ', 'CC: ', 'BCC: ', 'Subject: ', '---', '']
+  let lines = [
+    \'To: ' . (has_key(a:email, 'to') ? a:email.to : ''),
+    \'CC: ' . (has_key(a:email, 'cc') ? a:email.cc : ''),
+    \'BCC: ' . (has_key(a:email, 'bcc') ? a:email.bcc : ''),
+    \'Subject: ' . (has_key(a:email, 'subject') ? a:email.subject : ''),
+    \'---',
+    \has_key(a:email, 'message') ? a:email.message : '',
+  \]
 
   call append(0, lines)
   normal! ddgg$
-  setlocal filetype=iris-new
+  setlocal filetype=iris-edit
   let &modified = 0
 endfunction
 
-" --------------------------------------------------------------- # Save draft #
+" --------------------------------------------------------------------- # Save #
 
-function! iris#ui#save_draft()
+function! iris#email#ui#save()
   call iris#db#write('draft', getline(1, '$'))
   call iris#utils#log('draft saved!')
 
   let &modified = 0
 endfunction
 
-" --------------------------------------------------------------- # Send draft #
+" --------------------------------------------------------------------- # Send #
 
-function! iris#ui#send_draft()
+function! iris#email#ui#send()
   redraw | echo
   let email = {}
   let draft = iris#db#read('draft', [])
@@ -118,7 +114,7 @@ function! iris#ui#send_draft()
   let email.message = join(headers, "\r\n") . "\r\n\r\n" . join(draft[5:], "\r\n")
 
   silent! bdelete
-  call iris#server#send_email(email)
+  call iris#email#api#send(email)
 endfunction
 
 " ------------------------------------------------------------------ # Renders #
