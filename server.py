@@ -10,7 +10,7 @@ import sys
 
 from base64 import b64decode
 from email import policy
-from email.mime.multipart import MIMEMultipart
+from email.header import Header
 from email.mime.text import MIMEText
 from email.parser import BytesParser
 from imapclient.imapclient import IMAPClient
@@ -43,22 +43,21 @@ def get_emails(seq):
     fetch = _imap.fetch(search, ['ENVELOPE', 'INTERNALDATE', 'BODY[]'])
 
     for [uid, data] in fetch.items():
-        logging.info(data)
+        logging.info(data[b'ENVELOPE'])
 
         envelope = data[b'ENVELOPE']
         subject = decode(envelope.subject.decode())
         from_ = envelope.from_[0]
+        from_ = '@'.join([decode(from_.mailbox.decode()), decode(from_.host.decode())])
+        to = envelope.to[0]
+        to = '@'.join([decode(to.mailbox.decode()), decode(to.host.decode())])
         date_ = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
-
-        if (from_.name == None):
-            from_ = '@'.join([decode(from_.mailbox.decode()), decode(from_.host.decode())])
-        else:
-            from_ = decode(from_.name.decode())
 
         email = dict()
         email['uid'] = uid
         email['subject'] = subject.replace('_', ' ')
         email['from'] = from_
+        email['to'] = to
         email['date'] = date_
         email['flags'] = '!'
         email['content'] = get_email_content(uid, data[b'BODY[]'])
@@ -146,7 +145,7 @@ while True:
             _email = request['email']
             _password = request['password']
 
-            _imap = IMAPClient(host=_host)
+            _imap = IMAPClient(host=_host, port=993)
             _imap.login(_email, _password)
 
             folders = list(map(lambda folder: folder[2], _imap.list_folders()))
@@ -174,19 +173,27 @@ while True:
 
     elif request['type'] == 'send-email':
         try:
-            logging.info(request)
+            message = MIMEText(request['message'])
+            message['From'] = request['headers']['from']
+            message['To'] = request['headers']['to']
+            message['Subject'] = Header(request['headers']['subject'])
 
+            if 'cc' in request: message['CC'] = request['headers']['cc']
+            if 'bcc' in request: message['BCC'] = request['headers']['bcc']
+
+            logging.info(message['From'])
             smtp = smtplib.SMTP(_host)
             smtp.starttls()
             smtp.login(_email, _password)
-            smtp.sendmail(request['from'], request['to'], request['message'])
+            smtp.send_message(message)
             smtp.quit()
 
-            _imap.append('Sent', request['message'])
+            _imap.append('Sent', message.as_string())
 
             response = dict(success=True, type='send-email')
         except Exception as error:
             response = dict(success=False, type='send-email', error=str(error))
 
+    logging.info(json.dumps(response))
     sys.stdout.write(json.dumps(response))
     sys.stdout.flush()

@@ -1,5 +1,5 @@
 function! IrisFold(lnum)
-  return getline(a:lnum)[0] == '>' || getline(a:lnum + 1)[0] == '>' || getline(a:lnum + 2)[0] == '>'
+  return getline(a:lnum)[0] == '>'
 endfunction
 
 setlocal buftype=acwrite

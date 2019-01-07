@@ -1,11 +1,15 @@
 " ------------------------------------------------------------------- # Config #
 
 let s:config = {
-  \'list': {
+  \'list.from': {
     \'columns': ['from', 'subject', 'date', 'flags'],
+  \},
+  \'list.to': {
+    \'columns': ['to', 'subject', 'date', 'flags'],
   \},
   \'labels': {
     \'from': 'FROM',
+    \'to': 'TO',
     \'subject': 'SUBJECT',
     \'date': 'DATE',
     \'flags': 'FLAGS',
@@ -16,12 +20,15 @@ let s:config = {
 
 function! iris#email#ui#list()
   redraw | echo
+  let folder = iris#db#read('folder', 'INBOX')
   let emails = iris#db#read('emails', [])
+  let template = printf('list.%s', folder == 'Sent' ? 'to' : 'from')
 
   silent! bdelete Iris
   silent! edit Iris
 
-  call append(0, s:render('list', emails))
+
+  call append(0, s:render(template, emails))
   normal! ddgg
   setlocal filetype=iris-list
 endfunction
@@ -32,7 +39,7 @@ function! iris#email#ui#preview(type)
   redraw | echo
   let emails = iris#db#read('emails', [])
   let index = line('.') - 2
-  if  index == -1 | throw 'email not found' | endif
+  if  index < 0 | throw 'email not found' | endif
 
   let email = copy(emails[index])
 
@@ -51,24 +58,102 @@ function! iris#email#ui#preview(type)
   endif
 endfunction
 
-" --------------------------------------------------------------------- # Edit #
+" ---------------------------------------------------------------------- # New #
 
-function! iris#email#ui#edit(email)
-  redraw | echo
-  silent! bdelete 'Iris edit'
-  silent! edit Iris edit
+function! iris#email#ui#new()
+  silent! bdelete 'Iris new'
+  silent! edit Iris new
 
-  let lines = [
-    \'To: ' . (has_key(a:email, 'to') ? a:email.to : ''),
-    \'CC: ' . (has_key(a:email, 'cc') ? a:email.cc : ''),
-    \'BCC: ' . (has_key(a:email, 'bcc') ? a:email.bcc : ''),
-    \'Subject: ' . (has_key(a:email, 'subject') ? a:email.subject : ''),
+  call append(0, [
+    \'To: ',
+    \'CC: ',
+    \'BCC: ',
+    \'Subject: ',
     \'---',
-    \has_key(a:email, 'message') ? a:email.message : '',
-  \]
+    \'',
+  \])
 
-  call append(0, lines)
   normal! ddgg$
+
+  setlocal filetype=iris-edit
+  let &modified = 0
+endfunction
+
+" -------------------------------------------------------------------- # Reply #
+
+function! iris#email#ui#reply()
+  let email = s:get_focused_email()
+  let message = substitute(email.content.text, '', '', 'g')
+
+  silent! bdelete 'Iris reply'
+  silent! edit Iris reply
+
+  call append(0, [
+    \'To: ' . email.from,
+    \'CC: ',
+    \'BCC: ',
+    \'Subject: RE: ' . email.subject,
+    \'---',
+    \'',
+  \])
+
+  put =message
+  silent! 8,s/^/> /g
+  normal! dd6G
+
+  setlocal filetype=iris-edit
+  let &modified = 0
+endfunction
+
+" ---------------------------------------------------------------- # Reply all #
+
+function! iris#email#ui#reply_all()
+  let email = s:get_focused_email()
+  let message = substitute(email.content.text, '', '', 'g')
+
+  silent! bdelete 'Iris reply all'
+  silent! edit Iris reply all
+
+  call append(0, [
+    \'To: ' . email.from,
+    \'CC: ' . (has_key(email, 'cc') ? email.cc : ''),
+    \'BCC: ' . (has_key(email, 'bcc') ? email.bcc : ''),
+    \'Subject: RE: ' . email.subject,
+    \'---',
+    \'',
+  \])
+
+  put =message
+  silent! 8,s/^/> /g
+  normal! dd6G
+
+  setlocal filetype=iris-edit
+  let &modified = 0
+endfunction
+
+" ------------------------------------------------------------------ # Forward #
+
+function! iris#email#ui#forward()
+  let email = s:get_focused_email()
+  let message = substitute(email.content.text, '', '', 'g')
+
+  silent! bdelete 'Iris forward'
+  silent! edit Iris forward
+
+  call append(0, [
+    \'To: ',
+    \'CC: ',
+    \'BCC: ',
+    \'Subject: FW: ' . email.subject,
+    \'---',
+    \'',
+    \'---------- Forwarded message ---------',
+  \])
+
+  normal! dd
+  put =message
+  normal! gg$
+
   setlocal filetype=iris-edit
   let &modified = 0
 endfunction
@@ -86,35 +171,23 @@ endfunction
 
 function! iris#email#ui#send()
   redraw | echo
-  let email = {}
   let draft = iris#db#read('draft', [])
 
-  let email.from = g:iris_email
-  let email.to = iris#utils#trim(split(draft[0], ':')[1])
-  let headers = ['From: ' . email.from, 'To: ' . email.to]
+  let message = join(draft[5:], "\r\n")
+
+  let headers = {}
+  let headers.from = g:iris_email
+  let headers.to = iris#utils#trim(split(draft[0], ':')[1])
+  let headers.subject = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
 
   let cc = iris#utils#trim(split(draft[1], ':')[1])
-  if !empty(cc)
-    let email.cc = cc
-    let headers += ['CC: ' . cc]
-  endif
+  if !empty(cc) | let headers.cc = cc | endif
 
   let bcc = iris#utils#trim(split(draft[2], ':')[1])
-  if !empty(bcc)
-    let email.bcc = bcc
-    let headers += ['BCC: ' . bcc]
-  endif
-
-  let subject = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
-  if !empty(subject)
-    let email.subject = subject
-    let headers += ['Subject: ' . subject]
-  endif
-
-  let email.message = join(headers, "\r\n") . "\r\n\r\n" . join(draft[5:], "\r\n")
+  if !empty(bcc) | let headers.bcc = bcc | endif
 
   silent! bdelete
-  call iris#email#api#send(email)
+  call iris#email#api#send({'headers': headers, 'message': message})
 endfunction
 
 " ------------------------------------------------------------------ # Renders #
@@ -152,10 +225,10 @@ function! s:get_max_widths(lines, columns)
   return max_widths
 endfunction
 
-function! s:get_focused_task_id()
+function! s:get_focused_email()
   let emails = iris#db#read('emails', [])
   let index = line('.') - 2
-  if  index == -1 | throw 'email not found' | endif
-
-  return +get(emails, index).id
+  if  index < 0 | throw 'email not found' | endif
+  
+  return emails[index]
 endfunction
