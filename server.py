@@ -50,11 +50,8 @@ def get_last_seq():
 def get_emails(last_seq):
     emails = []
 
-    criteria = ['NOT', 'DELETED']
-    if (last_seq > 49): criteria.append('%d:%d' % (last_seq, last_seq - 49))
-
-    search = _imap.search(criteria)
-    fetch = _imap.fetch(search, ['ENVELOPE', 'INTERNALDATE', 'FLAGS'])
+    ids = '%d:%d' % (last_seq, last_seq - 49) if (last_seq > 49) else '*'
+    fetch = _imap.fetch(ids, ['ENVELOPE', 'INTERNALDATE', 'FLAGS'])
 
     for [uid, data] in fetch.items():
         envelope = data[b'ENVELOPE']
