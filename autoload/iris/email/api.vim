@@ -1,6 +1,6 @@
-" -------------------------------------------------------------------- # Fetch #
+" ---------------------------------------------------------------- # Fetch all #
 
-function! iris#email#api#fetch()
+function! iris#email#api#fetch_all()
   call iris#utils#log('fetching emails...')
   call iris#api#send({
     \'type': 'fetch-emails',

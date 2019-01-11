@@ -2,28 +2,15 @@ let s:compose = function('iris#utils#compose')
 let s:editor = has('nvim') ? 'neovim' : 'vim8'
 let s:path = resolve(expand('<sfile>:h:h:h') . '/server.py')
 
-let s:started = 0
-
 function! iris#api#path()
   return s:path
-endfunction
-
-" -------------------------------------------------------------------- # Start #
-
-function! iris#api#start()
-  if s:started | return | endif
-
-  call iris#utils#log('starting the server...')
-  execute 'call iris#api#' . s:editor . '#start()'
-
-  call iris#api#login()
-
-  let s:started = 1
 endfunction
 
 " -------------------------------------------------------------------- # Login #
 
 function! iris#api#login()
+  execute 'call iris#api#' . s:editor . '#start()'
+
   redraw | echo
   let prompt = 'Iris: IMAP password:' . "\n> "
   let imap_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)

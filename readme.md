@@ -108,7 +108,7 @@ Define port:
 g:iris_smtp_port = <number>
 ```
 
-Default: `465`
+Default: `587`
 
 Define login:
 
