@@ -68,6 +68,10 @@ function! iris#api#handle_data(data_raw)
     call iris#email#ui#list()
     redraw | echo
 
+  elseif data.type == 'fetch-email'
+    call iris#email#ui#preview(data.email, data.format)
+    call iris#utils#log('email previewed!')
+
   elseif data.type == 'send-email'
     call iris#db#write('draft', [])
     call iris#utils#log('email sent!')

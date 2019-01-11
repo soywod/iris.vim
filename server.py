@@ -14,6 +14,7 @@ from email.header import Header
 from email.mime.text import MIMEText
 from email.parser import BytesParser
 from imapclient.imapclient import IMAPClient
+from imapclient.imapclient import SEEN
 
 logging.basicConfig(filename='iris.log', level=logging.INFO)
 
@@ -24,27 +25,34 @@ _host = None
 _email = None
 _password = None
 
+def get_flags_str(flags):
+    flags_str = ''
+
+    flags_str += 'N' if not b'\\Seen' in flags else ' '
+    flags_str += '@' if b'\\Answered' in flags else ' '
+    flags_str += '!' if b'\\Flagged' in flags else ' '
+    flags_str += '#' if b'\\Draft' in flags else ' '
+
+    return flags_str
+    
 def get_last_seq():
     search = _imap.search(['NOT', 'DELETED', '*'])
     fetch = _imap.fetch(search, ['UID'])
     try:
-        return fetch.popitem()[1][b'SEQ']
+        return fetch.popitem()[0]
     except:
         return 0
 
-def get_emails(seq):
+def get_emails(last_seq):
     emails = []
-    criteria = ['NOT', 'DELETED']
 
-    if (seq > 29):
-        criteria.append('%d:%d' % (seq, seq - 29))
+    criteria = ['NOT', 'DELETED']
+    if (last_seq > 49): criteria.append('%d:%d' % (last_seq, last_seq - 49))
 
     search = _imap.search(criteria)
-    fetch = _imap.fetch(search, ['ENVELOPE', 'INTERNALDATE', 'BODY[]'])
+    fetch = _imap.fetch(search, ['ENVELOPE', 'INTERNALDATE', 'FLAGS'])
 
     for [uid, data] in fetch.items():
-        logging.info(data[b'ENVELOPE'])
-
         envelope = data[b'ENVELOPE']
         subject = decode(envelope.subject.decode())
         from_ = envelope.from_[0]
@@ -54,19 +62,24 @@ def get_emails(seq):
         date_ = data[b'INTERNALDATE'].strftime('%d/%m/%y, %Hh%M')
 
         email = dict()
-        email['uid'] = uid
+        email['id'] = uid
         email['subject'] = subject.replace('_', ' ')
         email['from'] = from_
         email['to'] = to
         email['date'] = date_
-        email['flags'] = '!'
-        email['content'] = get_email_content(uid, data[b'BODY[]'])
+        email['flags'] = get_flags_str(data[b'FLAGS'])
 
         emails.insert(0, email)
 
     return emails
 
-def get_email_content(uid, data):
+def get_email(id, format):
+    fetch = _imap.fetch([id], ['BODY[]'])
+    content = _get_email_content(id, fetch.popitem()[1][b'BODY[]'])
+
+    return content[format]
+
+def _get_email_content(uid, data):
     content = dict(text=None, html=None, attachments=[])
     email = BytesParser(policy=policy.default).parsebytes(data)
 
@@ -125,9 +138,7 @@ def decode(string):
     if (match == None): return string
 
     string_decoded = match.group(3)
-
-    if (match.group(2).upper() == 'B'):
-        string_decoded = b64decode(string_decoded)
+    if (match.group(2).upper() == 'B'): string_decoded = b64decode(string_decoded)
 
     return quopri.decodestring(string_decoded).decode(match.group(1))
 
@@ -161,10 +172,18 @@ while True:
         except Exception as error:
             response = dict(success=False, type='fetch-emails', error=str(error))
 
+    elif request['type'] == 'fetch-email':
+        try:
+            logging.info(request)
+            email = get_email(request['id'], request['format'])
+            response = dict(success=True, type='fetch-email', email=email, format=request['format'])
+        except Exception as error:
+            response = dict(success=False, type='fetch-email', error=str(error))
+
     elif request['type'] == 'select-folder':
         try:
             folder = request['folder']
-            _imap.select_folder(folder, readonly=True)
+            _imap.select_folder(folder)
             seq = get_last_seq()
             emails = get_emails(seq)
             response = dict(success=True, type='select-folder', folder=folder, seq=seq, emails=emails)

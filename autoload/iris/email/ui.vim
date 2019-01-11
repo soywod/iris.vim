@@ -27,7 +27,6 @@ function! iris#email#ui#list()
   silent! bdelete Iris
   silent! edit Iris
 
-
   call append(0, s:render(template, emails))
   normal! ddgg
   setlocal filetype=iris-list
@@ -35,25 +34,18 @@ endfunction
 
 " ------------------------------------------------------------------ # Preview #
 
-function! iris#email#ui#preview(type)
-  redraw | echo
-  let emails = iris#db#read('emails', [])
-  let index = line('.') - 2
-  if  index < 0 | throw 'email not found' | endif
-
-  let email = copy(emails[index])
-
-  if a:type == 'text'
-    let email.content.text = substitute(email.content.text, '', '', 'g')
+function! iris#email#ui#preview(email, format)
+  if a:format == 'text'
+    let email = substitute(a:email, '', '', 'g')
 
     silent! bdelete 'Iris preview'
     silent! edit Iris preview
-    call append(0, split(email.content.text, '\n'))
+    call append(0, split(email, '\n'))
     normal! ddgg
     setlocal filetype=iris-preview
 
-  elseif a:type == 'html'
-    let url = email.content.html
+  elseif a:format == 'html'
+    let url = a:email
     execute 'python3 import webbrowser; webbrowser.open_new("'.url.'")'
   endif
 endfunction
@@ -82,8 +74,9 @@ endfunction
 " -------------------------------------------------------------------- # Reply #
 
 function! iris#email#ui#reply()
-  let email = s:get_focused_email()
-  let message = substitute(email.content.text, '', '', 'g')
+  let index = iris#db#read('email:index', 0)
+  let email = iris#db#read('emails', [])[index]
+  let message = map(getline(1, '$'), "'>' . v:val")
 
   silent! bdelete 'Iris reply'
   silent! edit Iris reply
@@ -95,10 +88,8 @@ function! iris#email#ui#reply()
     \'Subject: RE: ' . email.subject,
     \'---',
     \'',
-  \])
+  \] + message)
 
-  put =message
-  silent! 8,s/^/> /g
   normal! dd6G
 
   setlocal filetype=iris-edit
@@ -108,8 +99,9 @@ endfunction
 " ---------------------------------------------------------------- # Reply all #
 
 function! iris#email#ui#reply_all()
-  let email = s:get_focused_email()
-  let message = substitute(email.content.text, '', '', 'g')
+  let index = iris#db#read('email:index', 0)
+  let email = iris#db#read('emails', [])[index]
+  let message = map(getline(1, '$'), "'>' . v:val")
 
   silent! bdelete 'Iris reply all'
   silent! edit Iris reply all
@@ -121,10 +113,8 @@ function! iris#email#ui#reply_all()
     \'Subject: RE: ' . email.subject,
     \'---',
     \'',
-  \])
+  \] + message)
 
-  put =message
-  silent! 8,s/^/> /g
   normal! dd6G
 
   setlocal filetype=iris-edit
@@ -134,8 +124,9 @@ endfunction
 " ------------------------------------------------------------------ # Forward #
 
 function! iris#email#ui#forward()
-  let email = s:get_focused_email()
-  let message = substitute(email.content.text, '', '', 'g')
+  let index = iris#db#read('email:index', 0)
+  let email = iris#db#read('emails', [])[index]
+  let message = getline(1, '$')
 
   silent! bdelete 'Iris forward'
   silent! edit Iris forward
@@ -148,11 +139,9 @@ function! iris#email#ui#forward()
     \'---',
     \'',
     \'---------- Forwarded message ---------',
-  \])
+  \] + message)
 
-  normal! dd
-  put =message
-  normal! gg$
+  normal! ddgg$
 
   setlocal filetype=iris-edit
   let &modified = 0
