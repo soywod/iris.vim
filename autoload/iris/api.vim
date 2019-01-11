@@ -24,15 +24,25 @@ endfunction
 " -------------------------------------------------------------------- # Login #
 
 function! iris#api#login()
-  let prompt = 'Iris: password for ' . g:iris_email . ':' . "\n> "
-  let password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+  redraw | echo
+  let prompt = 'Iris: IMAP password:' . "\n> "
+  let imap_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+
+  redraw | echo
+  let prompt = 'Iris: SMTP password (empty=same as IMAP):' . "\n> "
+  let smtp_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
 
   call iris#utils#log('logging in...')
   call iris#api#send({
     \'type': 'login',
-    \'host': g:iris_host,
-    \'email': g:iris_email,
-    \'password': password,
+    \'imap-host': g:iris_imap_host,
+    \'imap-port': g:iris_imap_port,
+    \'imap-login': g:iris_imap_login,
+    \'imap-password': imap_password,
+    \'smtp-host': g:iris_smtp_host,
+    \'smtp-port': g:iris_smtp_port,
+    \'smtp-login': g:iris_smtp_login,
+    \'smtp-password': empty(smtp_password) ? imap_password : smtp_password,
   \})
 endfunction
 

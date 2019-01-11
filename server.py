@@ -16,14 +16,18 @@ from email.parser import BytesParser
 from imapclient.imapclient import IMAPClient
 from imapclient.imapclient import SEEN
 
-logging.basicConfig(filename='iris.log', level=logging.INFO)
+logging.basicConfig(filename='/tmp/iris.log', level=logging.INFO)
 
 _imap = None
-_smtp = None
+_imap_host = None
+_imap_port = None
+_imap_login = None
+_imap_password = None
 
-_host = None
-_email = None
-_password = None
+_smtp_host = None
+_smtp_port = None
+_smtp_login = None
+_smtp_password = None
 
 def get_flags_str(flags):
     flags_str = ''
@@ -152,12 +156,18 @@ while True:
 
     if request['type'] == 'login':
         try:
-            _host = request['host']
-            _email = request['email']
-            _password = request['password']
+            _imap_host = request['imap-host']
+            _imap_port = request['imap-port']
+            _imap_login = request['imap-login']
+            _imap_password = request['imap-password']
 
-            _imap = IMAPClient(host=_host, port=993)
-            _imap.login(_email, _password)
+            _smtp_host = request['smtp-host']
+            _smtp_port = request['smtp-port']
+            _smtp_login = request['smtp-login']
+            _smtp_password = request['smtp-password']
+
+            _imap = IMAPClient(host=_imap_host, port=_imap_port)
+            _imap.login(_imap_login, _imap_password)
 
             folders = list(map(lambda folder: folder[2], _imap.list_folders()))
 
@@ -201,9 +211,9 @@ while True:
             if 'bcc' in request: message['BCC'] = request['headers']['bcc']
 
             logging.info(message['From'])
-            smtp = smtplib.SMTP(_host)
+            smtp = smtplib.SMTP(host=_smtp_host, port=_smtp_port)
             smtp.starttls()
-            smtp.login(_email, _password)
+            smtp.login(_smtp_login, _smtp_password)
             smtp.send_message(message)
             smtp.quit()
 
