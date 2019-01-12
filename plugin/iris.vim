@@ -1,3 +1,4 @@
+let g:iris_name  = get(g:, 'iris_name', 'Iris')
 let g:iris_email = get(g:, 'iris_email', 'iris@localhost')
 
 let g:iris_imap_host  = get(g:, 'iris_imap_host', 'localhost')

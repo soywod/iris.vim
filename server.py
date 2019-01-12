@@ -13,8 +13,10 @@ from email import policy
 from email.header import Header
 from email.mime.text import MIMEText
 from email.parser import BytesParser
+from email.utils import formataddr
+from email.utils import formatdate
+from email.utils import make_msgid
 from imapclient.imapclient import IMAPClient
-from imapclient.imapclient import SEEN
 
 logging.basicConfig(filename='/tmp/iris.log', level=logging.INFO)
 
@@ -49,8 +51,9 @@ def get_last_seq():
 
 def get_emails(last_seq):
     emails = []
+    if last_seq == 0: return emails
 
-    ids = '%d:%d' % (last_seq, last_seq - 49) if (last_seq > 49) else '*'
+    ids = '%d:%d' % (last_seq, last_seq - 49) if (last_seq > 49) else '%d:%d' % (last_seq, 1)
     fetch = _imap.fetch(ids, ['ENVELOPE', 'INTERNALDATE', 'FLAGS'])
 
     for [uid, data] in fetch.items():
@@ -181,7 +184,6 @@ while True:
 
     elif request['type'] == 'fetch-email':
         try:
-            logging.info(request)
             email = get_email(request['id'], request['format'])
             response = dict(success=True, type='fetch-email', email=email, format=request['format'])
         except Exception as error:
@@ -199,15 +201,20 @@ while True:
 
     elif request['type'] == 'send-email':
         try:
+            from_name = request['headers']['from-name']
+            from_email = request['headers']['from-email']
+
             message = MIMEText(request['message'])
-            message['From'] = request['headers']['from']
+            message['From'] = formataddr((from_name, from_email))
             message['To'] = request['headers']['to']
             message['Subject'] = Header(request['headers']['subject'])
+            message['Date'] = formatdate(localtime=True)
+            message['Message-Id'] = make_msgid()
 
             if 'cc' in request: message['CC'] = request['headers']['cc']
             if 'bcc' in request: message['BCC'] = request['headers']['bcc']
 
-            logging.info(message['From'])
+            logging.info(message)
             smtp = smtplib.SMTP(host=_smtp_host, port=_smtp_port)
             smtp.starttls()
             smtp.login(_smtp_login, _smtp_password)
@@ -220,6 +227,5 @@ while True:
         except Exception as error:
             response = dict(success=False, type='send-email', error=str(error))
 
-    logging.info(json.dumps(response))
     sys.stdout.write(json.dumps(response))
     sys.stdout.flush()

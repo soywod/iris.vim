@@ -165,15 +165,16 @@ function! iris#email#ui#send()
   let message = join(draft[5:], "\r\n")
 
   let headers = {}
-  let headers.from = g:iris_email
-  let headers.to = iris#utils#trim(split(draft[0], ':')[1])
-  let headers.subject = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
+  let headers['from-name'] = g:iris_name
+  let headers['from-email'] = g:iris_email
+  let headers['to'] = iris#utils#trim(split(draft[0], ':')[1])
+  let headers['subject'] = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
 
   let cc = iris#utils#trim(split(draft[1], ':')[1])
-  if !empty(cc) | let headers.cc = cc | endif
+  if !empty(cc) | let headers['cc'] = cc | endif
 
   let bcc = iris#utils#trim(split(draft[2], ':')[1])
-  if !empty(bcc) | let headers.bcc = bcc | endif
+  if !empty(bcc) | let headers['bcc'] = bcc | endif
 
   silent! bdelete
   call iris#email#api#send({'headers': headers, 'message': message})

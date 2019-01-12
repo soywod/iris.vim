@@ -58,6 +58,14 @@ send | `gs` (for `go send`)
 
 ## Config
 
+Define your name:
+
+```vim
+g:iris_name = <string>
+```
+
+Default: `Iris`
+
 Define your email address:
 
 ```vim
