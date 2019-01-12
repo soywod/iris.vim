@@ -54,7 +54,7 @@ forward | `gf` (for `go forward`)
 
 Function | Keybind
 --- | ---
-save draft | `:w` (for `go send`)
+save draft | `:w`
 send | `gs` (for `go send`)
 
 ## Config
@@ -148,6 +148,8 @@ Default: same as `g:iris_imap_login`
   - [ ] Cache contacts
   - [ ] Auto-complete contacts to, cc, bcc
   - [ ] Fetch new emails in background (idle mode)
+  - [ ] Save draft on server (instead of Vim memory)
+  - [ ] Manage more than one account
 
 ## Contributing
 
