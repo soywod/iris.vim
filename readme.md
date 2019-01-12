@@ -140,7 +140,8 @@ Default: same as `g:iris_imap_login`
   - [X] List and change folder (mailbox)
   - [X] Support Vim8+
 
-### v1.0.0
+### TODO
+  - [ ] Save password in GPG encrypted file
   - [ ] Add list pagination
   - [ ] Preview / download attachments
   - [ ] Delete emails
@@ -150,6 +151,8 @@ Default: same as `g:iris_imap_login`
   - [ ] Fetch new emails in background (idle mode)
   - [ ] Save draft on server (instead of Vim memory)
   - [ ] Manage more than one account
+  - [ ] Setup thread view
+  - [ ] Support Gmail labels
 
 ## Contributing
 
