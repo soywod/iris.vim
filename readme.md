@@ -138,7 +138,7 @@ Default: same as `g:iris_imap_login`
   - [X] Reply to an email
   - [X] Forward email
   - [X] List and change folder (mailbox)
-  - [ ] Support Vim8+
+  - [X] Support Vim8+
 
 ### v1.0.0
   - [ ] Add list pagination

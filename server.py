@@ -148,6 +148,7 @@ def decode(string):
 
 while True:
     request_raw = sys.stdin.readline()
+    logging.info(request_raw.rstrip())
 
     try:
         request = json.loads(request_raw.rstrip())
@@ -227,5 +228,6 @@ while True:
         except Exception as error:
             response = dict(success=False, type='send-email', error=str(error))
 
-    sys.stdout.write(json.dumps(response))
+    logging.info(json.dumps(response))
+    sys.stdout.write(json.dumps(response) + "\n")
     sys.stdout.flush()
