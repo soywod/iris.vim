@@ -38,8 +38,9 @@ used instead).
 Function | Keybind
 --- | ---
 text preview | `<Enter>`
-html preview | `gp` (for `go to preview`)
-new email | `gn` (for `go to new`)
+html preview | `gp` (for `go preview`)
+new email | `gn` (for `go new`)
+change folder | `gf` (for `go folder`)
 
 ### From email preview interface
 
