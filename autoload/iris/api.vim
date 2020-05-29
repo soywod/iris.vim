@@ -3,11 +3,6 @@ let s:editor = has("nvim") ? "neovim" : "vim8"
 let s:dir = expand("<sfile>:h:h:h")
 let s:path = resolve(s:dir . "/server.py")
 
-let s:passwd_filename = ".passwd"
-let s:passwd_filepath = resolve(s:dir . "/" . s:passwd_filename)
-let s:passwd_filename_gpg = s:passwd_filename . ".gpg"
-let s:passwd_filepath_gpg = resolve(s:dir . "/" . s:passwd_filename_gpg)
-
 function! iris#api#path()
   return s:path
 endfunction
@@ -18,16 +13,7 @@ function! iris#api#login()
   execute 'call iris#api#' . s:editor . '#start()'
   redraw | echo
 
-  if filereadable(s:passwd_filepath_gpg)
-    let output = systemlist(printf("gpg --decrypt -q '%s'", s:passwd_filepath_gpg))
-    let imap_password = output[0]
-  else
-    let prompt = 'Iris: IMAP password:' . "\n> "
-    let imap_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
-    call writefile([imap_password], s:passwd_filepath)
-    call system(printf("gpg --encrypt --sign --armor --batch --yes --output '%s' -r '%s' '%s'", s:passwd_filename_gpg, g:iris_gpg_id, s:passwd_filepath))
-    call delete(s:passwd_filepath)
-  endif
+  let imap_password = systemlist(g:iris_show_passwd_cmd)[0]
 
   call iris#utils#log('logging in...')
   call iris#api#send({

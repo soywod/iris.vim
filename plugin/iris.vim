@@ -1,6 +1,7 @@
 let g:iris_name  = get(g:, "iris_name", "Iris")
 let g:iris_email = get(g:, "iris_email", "iris@localhost")
-let g:iris_gpg_id = get(g:, "iris_gpg_id", g:iris_email)
+let g:iris_passwd_filepath = get(g:, "iris_passwd_filepath", "")
+let g:iris_show_passwd_cmd = get(g:, "iris_passwd_decrypt_cmd", printf("gpg --decrypt --batch --no-tty -q '%s'", g:iris_passwd_filepath))
 
 let g:iris_imap_host  = get(g:, "iris_imap_host", "localhost")
 let g:iris_imap_port  = get(g:, "iris_imap_port", 993)
