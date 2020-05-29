@@ -1,30 +1,99 @@
-# Iris.vim
+# 📫 Iris.vim
 
-A simple email client for Vim.
+Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/10437171/51052187-381b2b00-15d6-11e9-8170-f9344b0264ea.jpeg"></img>
-</p>
+![image](https://user-images.githubusercontent.com/10437171/83288749-2db9fb00-a1e4-11ea-9ffa-3f0b6223e3ad.png)
 
-## Introduction
+## Table of contents
 
-Iris is a simple email client for Vim, inspired by (Neo)Mutt and Alpine.
+  - [Motivation](#motivation)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [1. Identity](#1-identity)
+    - [2. IMAP](#2-imap)
+    - [3. SMTP](#3-identity)
+    - [4. Passwords](#4-passwords-optional)
+  - [Usage](#usage)
+    - [Change folder](#change-folder)
+  - [Keybinds](#keybinds)
+  - [Roadmap](#roadmap)
+  - [Contributing](#contributing)
 
-(Neo)Mutt and Alpine are very good terminal email clients, but they lack of Vim
+## Motivation
+
+(Neo)Mutt and Alpine are very good terminal mail clients, but they lack of Vim
 mappings. You can emulate, but it requires a lot of time, patience and
-configuration. Why trying to emulate, when you can have it in Vim? VimScript
-and Python are strong enought to do so. I hope you will enjoy it, feel free to
-contribute!
+configuration. Why trying to emulate, when you can have it in Vim? VimL and
+Python are strong enough to do so. The aim of Iris is to provide a simple mail client that:
+
+  - Allows you to manage your mails inside Vim
+  - Does not slow down neither Vim nor your workflow (lazy)
+  - Uses an [IMAP python lib](https://github.com/mjs/imapclient) to avoid implementing IMAP protocol logic
+
+## Installation
+
+For eg. with [`vim-plug`](https://github.com/junegunn/vim-plug):
+
+```vim
+Plug "soywod/iris.vim"
+```
+
+## Configuration
+
+Before using Iris, you need to configure it via global variables (they need to
+be added in your `.vimrc`).
+
+### 1. Identity
+
+```vim
+let g:iris_name  = "My name"
+let g:iris_mail = "your@mail.com"
+```
+
+### 2. IMAP
+
+```vim
+let g:iris_imap_host  = "your.imap.host"
+let g:iris_imap_port  = 993
+let g:iris_imap_login = "Your IMAP login" "Default to g:iris_mail
+```
+
+### 3. SMTP
+
+```vim
+let g:iris_smtp_host  = "your.smtp.host" "Default to g:iris_imap_host
+let g:iris_smtp_port  = 587
+let g:iris_smtp_login = "Your IMAP login" "Default to g:iris_mail
+```
+
+### 4. Passwords (optional)
+
+On startup, Iris will always ask for your IMAP and SMTP passwords. To avoid
+this, you can save your password in a file and encrypt it via
+[GPG](https://gnupg.org/):
+
+```bash
+gpg --encrypt --sign --armor --output myfile.gpg myfile
+```
+
+```vim
+let g:iris_imap_passwd_filepath = "/path/to/imap.gpg"
+let g:iris_smtp_passwd_filepath = "/path/to/smtp.gpg"
+```
+
+If you want to use something else than GPG, you can set up your custom command.
+For eg., using the MacOSX `security` tool:
+
+```vim
+let g:iris_imap_passwd_show_cmd = "security find-internet-password -gs IMAP_KEY -w"
+let g:iris_smtp_passwd_show_cmd = "security find-internet-password -gs SMTP_KEY -w"
+```
 
 ## Usage
 
 ```vim
 :Iris
 ```
-
-If it's your first connection, you will be prompted your IMAP password, then
-your SMTP password (this last one can be skipped, the IMAP password will be
-used instead).
 
 ### Change folder
 
@@ -33,16 +102,16 @@ used instead).
 ```
 
 ## Keybinds
-### From email list interface
+### From mail list interface
 
 Function | Keybind
 --- | ---
 text preview | `<Enter>`
 html preview | `gp` (for `go preview`)
-new email | `gn` (for `go new`)
+new mail | `gn` (for `go new`)
 change folder | `gf` (for `go folder`)
 
-### From email preview interface
+### From mail preview interface
 
 Function | Keybind
 --- | ---
@@ -50,105 +119,35 @@ reply | `gr` (for `go reply`)
 reply all | `gR` (for `go reply all`)
 forward | `gf` (for `go forward`)
 
-### From email edition interface
+### From mail edition interface
 
 Function | Keybind
 --- | ---
 save draft | `:w`
 send | `gs` (for `go send`)
 
-## Config
-
-Define your name:
-
-```vim
-g:iris_name = <string>
-```
-
-Default: `Iris`
-
-Define your email address:
-
-```vim
-g:iris_email = <string>
-```
-
-Default: `iris@localhost`
-
-### IMAP
-
-Define host:
-
-```vim
-g:iris_imap_host = <string>
-```
-
-Default: `localhost`
-
-Define port:
-
-```vim
-g:iris_imap_port = <number>
-```
-
-Default: `993`
-
-Define login:
-
-```vim
-g:iris_imap_login = <string>
-```
-
-Default: `user`
-
-### SMTP
-
-Define host:
-
-```vim
-g:iris_smtp_host = <string>
-```
-
-Default: same as `g:iris_imap_host`
-
-Define port:
-
-```vim
-g:iris_smtp_port = <number>
-```
-
-Default: `587`
-
-Define login:
-
-```vim
-g:iris_smtp_login = <string>
-```
-
-Default: same as `g:iris_imap_login`
-
 ## Roadmap
 
-### v1.0.0-alpha
-  - [X] List emails from INBOX
-  - [X] Preview `text/plain` emails
-  - [X] Preview `text/html` emails in browser
+### alpha
+  - [X] List mails from INBOX
+  - [X] Preview `text/plain` mails
+  - [X] Preview `text/html` mails in browser
   - [X] Set imap server as daemon (via sockets)
-  - [X] Send a new email
-  - [X] Reply to an email
-  - [X] Forward email
+  - [X] Send a new mail
+  - [X] Reply to a mail
+  - [X] Forward mail
   - [X] List and change folder (mailbox)
   - [X] Support Vim8+
 
-### TODO
-  - [ ] Save password in GPG encrypted file
+### v1.0.0
+  - [X] Use GPG to encrypt passwords
   - [ ] Add list pagination
   - [ ] Preview / download attachments
-  - [ ] Delete emails
-  - [ ] Cache emails
+  - [ ] Delete mails
+  - [ ] Cache mails
   - [ ] Cache contacts
   - [ ] Auto-complete contacts to, cc, bcc
-  - [ ] Fetch new emails in background (idle mode)
+  - [ ] Fetch new mails in background (idle mode)
   - [ ] Save draft on server (instead of Vim memory)
   - [ ] Manage more than one account
   - [ ] Setup thread view
@@ -168,8 +167,6 @@ convention. A line should never contain more than `80` characters.
 
 Tests should be added for each new functionality. Be sure to run tests before
 proposing a pull request.
-
-## Changelog
 
 ## Credits
 

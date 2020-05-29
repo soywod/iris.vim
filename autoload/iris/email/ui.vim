@@ -166,7 +166,7 @@ function! iris#email#ui#send()
 
   let headers = {}
   let headers['from-name'] = g:iris_name
-  let headers['from-email'] = g:iris_email
+  let headers['from-email'] = g:iris_mail
   let headers['to'] = iris#utils#trim(split(draft[0], ':')[1])
   let headers['subject'] = iris#utils#trim(join(split(draft[3], ':')[1:], ':'))
 

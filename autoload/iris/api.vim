@@ -11,9 +11,30 @@ endfunction
 
 function! iris#api#login()
   execute 'call iris#api#' . s:editor . '#start()'
-  redraw | echo
 
-  let imap_password = systemlist(g:iris_show_passwd_cmd)[0]
+  if empty(g:iris_imap_passwd_filepath)
+    if empty(g:iris_imap_passwd_show_cmd)
+      redraw | echo
+      let prompt = 'Iris: IMAP password:' . "\n> "
+      let imap_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+    else
+      let imap_password = systemlist(g:iris_imap_passwd_show_cmd)[0]
+    endif
+  else
+    let imap_password = systemlist(printf(g:iris_passwd_show_cmd, g:iris_imap_passwd_filepath))[0]
+  endif
+
+  if empty(g:iris_smtp_passwd_filepath)
+    if empty(g:iris_smtp_passwd_show_cmd)
+      redraw | echo
+      let prompt = 'Iris: SMTP password (empty=same as IMAP):' . "\n> "
+      let smtp_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+    else
+      let smtp_password = systemlist(g:iris_smtp_passwd_show_cmd)[0]
+    endif
+  else
+    let smtp_password = systemlist(printf(g:iris_passwd_show_cmd, g:iris_smtp_passwd_filepath))[0]
+  endif
 
   call iris#utils#log('logging in...')
   call iris#api#send({
@@ -25,7 +46,7 @@ function! iris#api#login()
     \'smtp-host': g:iris_smtp_host,
     \'smtp-port': g:iris_smtp_port,
     \'smtp-login': g:iris_smtp_login,
-    \'smtp-password': imap_password,
+    \'smtp-password': smtp_password,
   \})
 endfunction
 

@@ -41,14 +41,6 @@ def get_flags_str(flags):
 
     return flags_str
     
-def get_last_seq():
-    search = _imap.search(['NOT', 'DELETED'])
-    fetch = _imap.fetch(search, ['UID'])
-    try:
-        return fetch.popitem()[0]
-    except:
-        return 0
-
 def get_emails(last_seq):
     emails = []
     if last_seq == 0: return emails
@@ -193,8 +185,7 @@ while True:
     elif request['type'] == 'select-folder':
         try:
             folder = request['folder']
-            _imap.select_folder(folder)
-            seq = get_last_seq()
+            seq = _imap.select_folder(folder)[b'UIDNEXT']
             emails = get_emails(seq)
             response = dict(success=True, type='select-folder', folder=folder, seq=seq, emails=emails)
         except Exception as error:
