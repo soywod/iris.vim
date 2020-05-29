@@ -42,7 +42,7 @@ def get_flags_str(flags):
     return flags_str
     
 def get_last_seq():
-    search = _imap.search(['NOT', 'DELETED', '*'])
+    search = _imap.search(['NOT', 'DELETED'])
     fetch = _imap.fetch(search, ['UID'])
     try:
         return fetch.popitem()[0]
