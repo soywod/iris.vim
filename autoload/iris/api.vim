@@ -97,3 +97,7 @@ endfunction
 function! iris#api#handle_close()
   call iris#utils#elog('server: connection lost')
 endfunction
+
+function! iris#api#start_idle()
+  echom "START IDLE"
+endfunction

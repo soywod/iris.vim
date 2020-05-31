@@ -7,8 +7,8 @@ function! iris#api#vim8#start()
   if !has('job') | throw 'job' | endif
   if !has('channel') | throw 'channel' | endif
 
-  " let cmd = printf('python3 "%s"', iris#api#path())
   let cmd = printf('python3 "%s"', iris#api#path())
+
   let options = {
     \'in_mode': 'nl',
     \'out_mode': 'nl',

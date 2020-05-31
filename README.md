@@ -141,16 +141,16 @@ send | `gs` (for `go send`)
 
 ### v1.0.0
   - [X] Use GPG to encrypt passwords
-  - [ ] Add list pagination
+  - [X] Fetch new mails in background (idle mode)
+  - [ ] Add pagination
   - [ ] Preview / download attachments
   - [ ] Delete mails
   - [ ] Cache mails
   - [ ] Cache contacts
   - [ ] Auto-complete contacts to, cc, bcc
-  - [ ] Fetch new mails in background (idle mode)
   - [ ] Save draft on server (instead of Vim memory)
   - [ ] Manage more than one account
-  - [ ] Setup thread view
+  - [ ] Set up thread view
   - [ ] Support Gmail labels
 
 ## Contributing
