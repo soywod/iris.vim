@@ -20,8 +20,8 @@ let s:config = {
 
 function! iris#email#ui#list()
   redraw | echo
-  let folder = iris#db#read('folder', 'INBOX')
-  let emails = iris#db#read('emails', [])
+  let folder = iris#cache#read('folder', 'INBOX')
+  let emails = iris#cache#read('emails', [])
   let template = printf('list.%s', folder == 'Sent' ? 'to' : 'from')
 
   silent! bdelete Iris
@@ -74,8 +74,8 @@ endfunction
 " -------------------------------------------------------------------- # Reply #
 
 function! iris#email#ui#reply()
-  let index = iris#db#read('email:index', 0)
-  let email = iris#db#read('emails', [])[index]
+  let index = iris#cache#read('email:index', 0)
+  let email = iris#cache#read('emails', [])[index]
   let message = map(getline(1, '$'), "'>' . v:val")
 
   silent! bdelete 'Iris reply'
@@ -99,8 +99,8 @@ endfunction
 " ---------------------------------------------------------------- # Reply all #
 
 function! iris#email#ui#reply_all()
-  let index = iris#db#read('email:index', 0)
-  let email = iris#db#read('emails', [])[index]
+  let index = iris#cache#read('email:index', 0)
+  let email = iris#cache#read('emails', [])[index]
   let message = map(getline(1, '$'), "'>' . v:val")
 
   silent! bdelete 'Iris reply all'
@@ -124,8 +124,8 @@ endfunction
 " ------------------------------------------------------------------ # Forward #
 
 function! iris#email#ui#forward()
-  let index = iris#db#read('email:index', 0)
-  let email = iris#db#read('emails', [])[index]
+  let index = iris#cache#read('email:index', 0)
+  let email = iris#cache#read('emails', [])[index]
   let message = getline(1, '$')
 
   silent! bdelete 'Iris forward'
@@ -150,7 +150,7 @@ endfunction
 " --------------------------------------------------------------------- # Save #
 
 function! iris#email#ui#save()
-  call iris#db#write('draft', getline(1, '$'))
+  call iris#cache#write('draft', getline(1, '$'))
   call iris#utils#log('draft saved!')
 
   let &modified = 0
@@ -160,7 +160,7 @@ endfunction
 
 function! iris#email#ui#send()
   redraw | echo
-  let draft = iris#db#read('draft', [])
+  let draft = iris#cache#read('draft', [])
 
   let message = join(draft[5:], "\r\n")
 
@@ -216,7 +216,7 @@ function! s:get_max_widths(lines, columns)
 endfunction
 
 function! s:get_focused_email()
-  let emails = iris#db#read('emails', [])
+  let emails = iris#cache#read('emails', [])
   let index = line('.') - 2
   if  index < 0 | throw 'email not found' | endif
   

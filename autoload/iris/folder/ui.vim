@@ -1,8 +1,8 @@
 " ------------------------------------------------------------------- # Select #
 
 function! iris#folder#ui#select()
-  let folder  = iris#db#read('folder', 'INBOX')
-  let folders = iris#db#read('folders', [])
+  let folder  = iris#cache#read('folder', 'INBOX')
+  let folders = iris#cache#read('folders', [])
 
   echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ', ') . ': '
   let choice = nr2char(getchar())

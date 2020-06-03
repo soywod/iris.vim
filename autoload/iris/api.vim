@@ -67,18 +67,18 @@ function! iris#api#handle_data(data_raw)
   endif
 
   if data.type == 'login'
-    call iris#db#write('folders', data.folders)
+    call iris#cache#write('folders', data.folders)
     call iris#utils#log('logged in!')
 
   elseif data.type == 'select-folder'
-    call iris#db#write('folder', data.folder)
-    call iris#db#write('seq', data.seq)
-    call iris#db#write('emails', data.emails)
+    call iris#cache#write('folder', data.folder)
+    call iris#cache#write('seq', data.seq)
+    call iris#cache#write('emails', data.emails)
     call iris#email#ui#list()
     call iris#utils#log('folder changed!')
 
   elseif data.type == 'fetch-emails'
-    call iris#db#write('emails', data.emails)
+    call iris#cache#write('emails', data.emails)
     call iris#email#ui#list()
     redraw | echo
 
@@ -87,7 +87,7 @@ function! iris#api#handle_data(data_raw)
     call iris#utils#log('email previewed!')
 
   elseif data.type == 'send-email'
-    call iris#db#write('draft', [])
+    call iris#cache#write('draft', [])
     call iris#utils#log('email sent!')
   endif
 endfunction
