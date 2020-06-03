@@ -12,7 +12,7 @@ import threading
 
 from base64 import b64decode
 from email import policy
-from email.header import Header
+from email.header import Header, decode_header
 from email.mime.text import MIMEText
 from email.parser import BytesParser
 from email.utils import formataddr
@@ -63,16 +63,17 @@ def get_emails(last_seq):
 
     for [uid, data] in fetch.items():
         envelope = data[b"ENVELOPE"]
-        subject = decode(envelope.subject.decode())
+        subject = decode_byte(envelope.subject)
+        logging.info(subject)
         from_ = envelope.from_[0]
-        from_ = "@".join([decode(from_.mailbox.decode()), decode(from_.host.decode())])
+        from_ = "@".join([decode_byte(from_.mailbox), decode_byte(from_.host)])
         to = envelope.to[0]
-        to = "@".join([decode(to.mailbox.decode()), decode(to.host.decode())])
+        to = "@".join([decode_byte(to.mailbox), decode_byte(to.host)])
         date_ = data[b"INTERNALDATE"].strftime("%d/%m/%y, %Hh%M")
 
         email = dict()
         email["id"] = uid
-        email["subject"] = subject.replace("_", " ")
+        email["subject"] = subject
         email["from"] = from_
         email["to"] = to
         email["date"] = date_
@@ -156,14 +157,13 @@ def write_preview(payload, uid, subtype="html"):
 
     return preview
 
-def decode(string):
-    match = re.match(r"^=\?(.*?)\?(.*?)\?(.*?)\?=$", string) 
-    if (match == None): return string
+def decode_byte(byte):
+    decode_list = decode_header(byte.decode())
 
-    string_decoded = match.group(3)
-    if (match.group(2).upper() == "B"): string_decoded = b64decode(string_decoded)
+    def _decode_byte(byte_or_str, encoding):
+        return byte_or_str.decode(encoding or "utf-8") if type(byte_or_str) is bytes else byte_or_str
 
-    return quopri.decodestring(string_decoded).decode(match.group(1))
+    return "".join([_decode_byte(val, encoding) for val, encoding in decode_list])
 
 while True:
     request_raw = sys.stdin.readline()
