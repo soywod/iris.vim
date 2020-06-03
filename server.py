@@ -56,9 +56,11 @@ def get_emails(last_seq):
     global imap_client
 
     emails = []
-    if last_seq == 0: return emails
+    if last_seq == 0:
+        return emails
 
-    ids = "%d:%d" % (last_seq, last_seq - 49) if (last_seq > 49) else "%d:%d" % (last_seq, 1)
+    chunk_size = 50
+    ids = "%d:%d" % (last_seq, last_seq - chunk_size) if (last_seq > chunk_size) else "%d:%d" % (last_seq, 1)
     fetch = imap_client.fetch(ids, ["ENVELOPE", "INTERNALDATE", "FLAGS"])
 
     for [uid, data] in fetch.items():
@@ -266,6 +268,7 @@ while True:
         except Exception as error:
             response = dict(success=False, type="send-email", error=str(error))
 
-    logging.info(json.dumps(response))
-    sys.stdout.write(json.dumps(response) + "\n")
+    json_response = json.dumps(response)
+    logging.info(json_response)
+    sys.stdout.write(json_response + "\n")
     sys.stdout.flush()
