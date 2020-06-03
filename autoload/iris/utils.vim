@@ -1,35 +1,29 @@
-" ------------------------------------------------------------------ # Compose #
-
-function! iris#utils#compose(...)
-  let funcs = map(reverse(copy(a:000)), 'function(v:val)')
-  return function('s:compose', [funcs])
+function! iris#utils#pipe(...)
+  let funcs = map(copy(a:000), "function(v:val)")
+  return function("s:pipe", [funcs])
 endfunction
 
-function! s:compose(funcs, arg)
+function! s:pipe(funcs, arg)
   let data = a:arg
 
-  for Func in a:funcs
-    let data = Func(data)
+  for Fn in a:funcs
+    let data = Fn(data)
   endfor
 
   return data
 endfunction
 
-" --------------------------------------------------------------------- # Trim #
-
 function! iris#utils#trim(str)
-  return iris#utils#compose('s:trim_left', 's:trim_right')(a:str)
+  return iris#utils#pipe("s:trim_left", "s:trim_right")(a:str)
 endfunction
 
 function! s:trim_left(str)
-  return substitute(a:str, '^\s*', '', 'g')
+  return substitute(a:str, "^\s*", "", "g")
 endfunction
 
 function! s:trim_right(str)
-  return substitute(a:str, '\s*$', '', 'g')
+  return substitute(a:str, "\s*$", "", "g")
 endfunction
-
-" ------------------------------------------------------------------- # Assign #
 
 function! iris#utils#assign(...)
   let overrides = copy(a:000)
@@ -45,8 +39,6 @@ function! iris#utils#assign(...)
   return base
 endfunction
 
-" ---------------------------------------------------------------------- # Sum #
-
 function! iris#utils#sum(array)
   let total = 0
 
@@ -57,28 +49,24 @@ function! iris#utils#sum(array)
   return total
 endfunction
 
-" ---------------------------------------------------------------- # Log utils #
-
 function! iris#utils#log(msg)
-  let msg = printf('Iris: %s', a:msg)
+  let msg = printf("Iris: %s", a:msg)
   redraw | echom msg
 endfunction
 
 function! iris#utils#elog(msg)
-  let msg = printf('Iris: %s', a:msg)
+  let msg = printf("Iris: %s", a:msg)
   redraw | echohl ErrorMsg | echom msg | echohl None
 endfunction
-
-" ------------------------------------------------------------- # Notify utils #
 
 function! iris#utils#notify(title, msg)
   let msg = shellescape(a:msg)
 
-  if has('unix') 
-    if has('mac')
-      call system('terminal-notifier -title ' . a:title . ' -message ' . msg)
+  if has("unix") 
+    if has("mac")
+      call system("terminal-notifier -title " . a:title . " -message " . msg)
     else
-      call system('notify-send ' . a:title . ' ' . msg)
+      call system("notify-send " . a:title . " " . msg)
     endif
   endif
 endfunction

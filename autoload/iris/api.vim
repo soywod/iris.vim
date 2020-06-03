@@ -1,4 +1,4 @@
-let s:compose = function("iris#utils#compose")
+let s:pipe = function("iris#utils#pipe")
 let s:editor = has("nvim") ? "neovim" : "vim8"
 let s:dir = expand("<sfile>:h:h:h")
 let s:path = resolve(s:dir . "/server.py")
@@ -16,7 +16,7 @@ function! iris#api#login()
     if empty(g:iris_imap_passwd_show_cmd)
       redraw | echo
       let prompt = 'Iris: IMAP password:' . "\n> "
-      let imap_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+      let imap_password = s:pipe('inputsecret', 'iris#utils#trim')(prompt)
     else
       let imap_password = systemlist(g:iris_imap_passwd_show_cmd)[0]
     endif
@@ -28,7 +28,7 @@ function! iris#api#login()
     if empty(g:iris_smtp_passwd_show_cmd)
       redraw | echo
       let prompt = 'Iris: SMTP password (empty=same as IMAP):' . "\n> "
-      let smtp_password = s:compose('iris#utils#trim', 'inputsecret')(prompt)
+      let smtp_password = s:pipe('inputsecret', 'iris#utils#trim')(prompt)
     else
       let smtp_password = systemlist(g:iris_smtp_passwd_show_cmd)[0]
     endif
