@@ -58,15 +58,3 @@ function! iris#utils#elog(msg)
   let msg = printf("Iris: %s", a:msg)
   redraw | echohl ErrorMsg | echom msg | echohl None
 endfunction
-
-function! iris#utils#notify(title, msg)
-  let msg = shellescape(a:msg)
-
-  if has("unix") 
-    if has("mac")
-      call system("terminal-notifier -title " . a:title . " -message " . msg)
-    else
-      call system("notify-send " . a:title . " " . msg)
-    endif
-  endif
-endfunction

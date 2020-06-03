@@ -208,7 +208,6 @@ while True:
 
     elif request["type"] == "stop-idle" and is_idle:
         try:
-            logging.info('stop idle')
             is_idle = False
             idle_thread.join()
             imap_client.idle_done()

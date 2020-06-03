@@ -1,4 +1,4 @@
-if exists('b:current_syntax') | finish | endif
+if exists("b:current_syntax") | finish | endif
 
 syntax match iris_info_thread   /^>.*$/
 syntax match iris_info_email    /[a-zA-Z\.\_]\+@[a-zA-Z\.\_]\+/
@@ -16,4 +16,4 @@ highlight default link iris_info_cc       Structure
 highlight default link iris_info_bcc      Structure
 highlight default link iris_info_subject  Structure
 
-let b:current_syntax = 'iris-edit'
+let b:current_syntax = "iris-edit"

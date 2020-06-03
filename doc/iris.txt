@@ -1,4 +1,4 @@
-*iris.txt* - A simple mail client for Vim.
+*iris.txt* - 📫 Simple mail client for Vim.
 
                 _/_/_/       _/_/_/        _/_/_/         _/_/_/               
                  _/         _/    _/        _/         _/                      
@@ -9,35 +9,33 @@
 ==============================================================================
 TABLE OF CONTENTS                                              *iris-contents*
 
-  Introduction ........................................................ |iris|
-  TODO .....................................................................
+  Motivation .......................................................... |iris|
   License ..................................................... |iris-license|
-  Bugs ........................................................... |iris-bugs|
   Contributing ........................................... |iris-contributing|
-  Changelog ................................................. |iris-changelog|
   Credits ..................................................... |iris-credits|
 
 ==============================================================================
-INTRODUCTION                                                            *iris*
-
-Iris is a simple mail client for vim, inspired by (Neo)Mutt and Alpine (see
-|iris-credits| for more details).
+MOTIVATION                                                              *iris*
 
 (Neo)Mutt and Alpine are very good terminal mail clients, but they lack of Vim
 mappings. You can emulate, but it requires a lot of time, patience and
-configuration. Why trying to emulate, when you can have it in Vim ? VimScript
-and Python are strong enought to do so. I hope you will enjoy it, feel free to
-contribute (see |iris-contributing|).
+configuration. Why trying to emulate, when you can have it in Vim? VimL and
+Python are strong enough to do so. The aim of Iris is to provide a simple mail
+client that:
 
-==============================================================================
-TODO
+  - Allows you to manage your mails inside Vim
+  - Does not slow down neither Vim nor your workflow (lazy)
+  - Uses an `IMAP python lib` {1} to avoid
+    implementing IMAP protocol logic
+
+                                         https://github.com/mjs/imapclient {1}
 
 ==============================================================================
 LICENSE                                                         *iris-license*
 
 MIT License
 
-Copyright (c) 2018 Clément DOUIN <clement.douin@gmail.com>
+Copyright © 2018,2020 soywod <clement.douin@posteo.net>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,11 +54,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-==============================================================================
-BUGS                                                               *iris-bugs*
-
-Not yet :p
 
 ==============================================================================
 CONTRIBUTING                                               *iris-contributing*
@@ -83,9 +76,6 @@ should never contain more than 80 characters.
 before proposing a pull request.
 
                 https://gist.github.com/stephenparish/9941e89d80e2bc58a153 {1}
-
-==============================================================================
-CHANGELOG                                                     *iris-changelog*
 
 ==============================================================================
 CREDITS                                                         *iris-credits*

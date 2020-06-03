@@ -1,4 +1,4 @@
-if exists('b:current_syntax')
+if exists("b:current_syntax")
   finish
 endif
 
@@ -18,4 +18,4 @@ highlight default link iris_table_flag      Comment
 
 highlight iris_table_head term=bold,underline cterm=bold,underline gui=bold,underline
 
-let b:current_syntax = 'iris-list'
+let b:current_syntax = "iris-list"

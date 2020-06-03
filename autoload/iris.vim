@@ -1,12 +1,11 @@
-let s:started = 0
-
-" -------------------------------------------------------------------- # Start #
+let s:is_started = 0
 
 function! iris#start()
-  if s:started == 0
-    call iris#api#login()
-    call iris#folder#api#select('INBOX')
-    let s:started = 1
+  if s:is_started == 0
+    call iris#api#start()
+    call iris#auth#api#login()
+    call iris#folder#api#select("INBOX")
+    let s:is_started = 1
   else
     call iris#email#api#fetch_all()
   endif
