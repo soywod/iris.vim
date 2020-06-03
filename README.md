@@ -16,7 +16,6 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
   - [Usage](#usage)
     - [Change folder](#change-folder)
   - [Keybinds](#keybinds)
-  - [Roadmap](#roadmap)
   - [Contributing](#contributing)
 
 ## Motivation
@@ -125,33 +124,6 @@ Function | Keybind
 --- | ---
 save draft | `:w`
 send | `gs` (for `go send`)
-
-## Roadmap
-
-### alpha
-  - [X] List mails from INBOX
-  - [X] Preview `text/plain` mails
-  - [X] Preview `text/html` mails in browser
-  - [X] Set imap server as daemon (via sockets)
-  - [X] Send a new mail
-  - [X] Reply to a mail
-  - [X] Forward mail
-  - [X] List and change folder (mailbox)
-  - [X] Support Vim8+
-
-### v1.0.0
-  - [X] Use GPG to encrypt passwords
-  - [X] Fetch new mails in background (idle mode)
-  - [ ] Add pagination
-  - [ ] Preview / download attachments
-  - [ ] Delete mails
-  - [ ] Cache mails
-  - [ ] Cache contacts
-  - [ ] Auto-complete contacts to, cc, bcc
-  - [ ] Save draft on server (instead of Vim memory)
-  - [ ] Manage more than one account
-  - [ ] Set up thread view
-  - [ ] Support Gmail labels
 
 ## Contributing
 
