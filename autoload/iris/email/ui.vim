@@ -50,16 +50,15 @@ function! iris#email#ui#new()
 
   call append(0, [
     \"To: ",
-    \"CC: ",
-    \"BCC: ",
+    \"Cc: ",
+    \"Bcc: ",
     \"Subject: ",
-    \"---",
     \"",
   \])
 
   normal! ddgg$
 
-  setlocal filetype=iris-edit
+  setlocal filetype=mail
   let &modified = 0
 endfunction
 
@@ -72,17 +71,17 @@ function! iris#email#ui#reply()
   silent! edit Iris reply
 
   call append(0, [
+    \"In-Reply-To: " . email["message-id"],
     \"To: " . email.from,
-    \"CC: ",
-    \"BCC: ",
-    \"Subject: RE: " . email.subject,
-    \"---",
+    \"Cc: ",
+    \"Bcc: ",
+    \"Subject: Re: " . email.subject,
     \"",
   \] + message)
 
   normal! dd6G
 
-  setlocal filetype=iris-edit
+  setlocal filetype=mail
   let &modified = 0
 endfunction
 
@@ -95,17 +94,17 @@ function! iris#email#ui#reply_all()
   silent! edit Iris reply all
 
   call append(0, [
+    \"In-Reply-To: " . email["message-id"],
     \"To: " . email.from,
-    \"CC: " . (has_key(email, "cc") ? email.cc : ""),
-    \"BCC: " . (has_key(email, "bcc") ? email.bcc : ""),
-    \"Subject: RE: " . email.subject,
-    \"---",
+    \"Cc: " . (has_key(email, "cc") ? email.cc : ""),
+    \"Bcc: " . (has_key(email, "bcc") ? email.bcc : ""),
+    \"Subject: Re: " . email.subject,
     \"",
   \] + message)
 
   normal! dd6G
 
-  setlocal filetype=iris-edit
+  setlocal filetype=mail
   let &modified = 0
 endfunction
 
@@ -121,8 +120,7 @@ function! iris#email#ui#forward()
     \"To: ",
     \"CC: ",
     \"BCC: ",
-    \"Subject: FW: " . email.subject,
-    \"---",
+    \"Subject: Fwd: " . email.subject,
     \"",
     \"---------- Forwarded message ---------",
   \] + message)
@@ -143,22 +141,27 @@ function! iris#email#ui#send()
   redraw | echo
   let draft = iris#cache#read("draft", [])
 
-  let message = join(draft[5:], "\r\n")
+  let separator_idx = index(draft, "")
 
   let headers = {}
-  let headers["from-name"] = g:iris_name
-  let headers["from-email"] = g:iris_mail
-  let headers["to"] = iris#utils#trim(split(draft[0], ":")[1])
-  let headers["subject"] = iris#utils#trim(join(split(draft[3], ":")[1:], ":"))
+  for header in draft[:separator_idx-1]
+    let header_split = split(header, ":")
+    let key = header_split[0]
+    let val = iris#utils#trim(join(header_split[1:], ''))
+    if !empty(val) | let headers[key] = val | endif
+  endfor
 
-  let cc = iris#utils#trim(split(draft[1], ":")[1])
-  if !empty(cc) | let headers["cc"] = cc | endif
-
-  let bcc = iris#utils#trim(split(draft[2], ":")[1])
-  if !empty(bcc) | let headers["bcc"] = bcc | endif
+  let message = join(draft[separator_idx+1:], "\r\n")
 
   silent! bdelete
-  call iris#email#api#send({"headers": headers, "message": message})
+  call iris#email#api#send({
+    \"headers": headers,
+    \"message": message,
+    \"from": {
+      \"name": g:iris_name,
+      \"mail": g:iris_mail,
+    \}
+  \})
 endfunction
 
 function! s:render(type, lines)

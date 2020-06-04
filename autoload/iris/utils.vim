@@ -18,11 +18,11 @@ function! iris#utils#trim(str)
 endfunction
 
 function! s:trim_left(str)
-  return substitute(a:str, "^\s*", "", "g")
+  return substitute(a:str, '^\s*', "", "g")
 endfunction
 
 function! s:trim_right(str)
-  return substitute(a:str, "\s*$", "", "g")
+  return substitute(a:str, '\s*$', "", "g")
 endfunction
 
 function! iris#utils#assign(...)

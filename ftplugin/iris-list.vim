@@ -9,7 +9,7 @@ nnoremap <buffer>        <silent> gp   :call iris#email#api#preview(line("."), "
 nnoremap <buffer><nowait><silent> gn   :call iris#email#ui#new()                      <CR>
 nnoremap <buffer><nowait><silent> gf   :call iris#folder#ui#select()                  <CR>
 
-augroup irislist
-  autocmd! * <buffer>
-  autocmd BufDelete <buffer> call iris#api#send({"type": "start-idle"})
-augroup end
+" augroup irislist
+"   autocmd! * <buffer>
+"   autocmd BufDelete <buffer> call iris#api#send({"type": "start-idle"})
+" augroup end

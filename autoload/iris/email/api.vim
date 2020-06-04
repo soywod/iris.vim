@@ -1,6 +1,6 @@
 function! iris#email#api#fetch_all()
-  call iris#utils#log("stopping idle mode...")
-  call iris#api#send({"type": "stop-idle"})
+  " call iris#utils#log("stopping idle mode...")
+  " call iris#api#send({"type": "stop-idle"})
 
   call iris#utils#log("fetching emails...")
   call iris#api#send({

@@ -66,7 +66,6 @@ def get_emails(last_seq):
     for [uid, data] in fetch.items():
         envelope = data[b"ENVELOPE"]
         subject = decode_byte(envelope.subject)
-        logging.info(subject)
         from_ = envelope.from_[0]
         from_ = "@".join([decode_byte(from_.mailbox), decode_byte(from_.host)])
         to = envelope.to[0]
@@ -80,6 +79,7 @@ def get_emails(last_seq):
         email["to"] = to
         email["date"] = date_
         email["flags"] = get_flags_str(data[b"FLAGS"])
+        email["message-id"] = envelope.message_id.decode()
 
         emails.insert(0, email)
 
@@ -241,20 +241,11 @@ while True:
 
     elif request["type"] == "send-email":
         try:
-            from_name = request["headers"]["from-name"]
-            from_email = request["headers"]["from-email"]
-
             message = MIMEText(request["message"])
-            message["From"] = formataddr((from_name, from_email))
-            message["To"] = request["headers"]["to"]
-            message["Subject"] = Header(request["headers"]["subject"])
-            message["Date"] = formatdate(localtime=True)
+            for key, val in request["headers"].items(): message[key] = val
+            message["From"] = formataddr((request["from"]["name"], request["from"]["mail"]))
             message["Message-Id"] = make_msgid()
 
-            if "cc" in request: message["CC"] = request["headers"]["cc"]
-            if "bcc" in request: message["BCC"] = request["headers"]["bcc"]
-
-            logging.info(message)
             smtp = smtplib.SMTP(host=smtp_host, port=smtp_port)
             smtp.starttls()
             smtp.login(smtp_login, smtp_passwd)
