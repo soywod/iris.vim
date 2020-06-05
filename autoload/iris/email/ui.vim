@@ -67,12 +67,13 @@ function! iris#email#ui#reply()
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
 
-  if email["reply-to"]
-    let reply_to = email["reply-to"]
-  else
+  if empty(email["reply-to"])
     let reply_to = email["from"]
+  else
+    let reply_to = email["reply-to"]
   endif
 
+  echom string(email)
   silent! bdelete "Iris reply"
   silent! edit Iris reply
 
@@ -96,10 +97,10 @@ function! iris#email#ui#reply_all()
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
 
-  if email["reply-to"]
-    let reply_to = email["reply-to"]
-  else
+  if empty(email["reply-to"])
     let reply_to = email["from"]
+  else
+    let reply_to = email["reply-to"]
   endif
 
   silent! bdelete "Iris reply all"
