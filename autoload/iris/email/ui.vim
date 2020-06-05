@@ -67,12 +67,18 @@ function! iris#email#ui#reply()
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
 
+  if email["reply-to"]
+    let reply_to = email["reply-to"]
+  else
+    let reply_to = email["from"]
+  endif
+
   silent! bdelete "Iris reply"
   silent! edit Iris reply
 
   call append(0, [
     \"In-Reply-To: " . email["message-id"],
-    \"To: " . email.from,
+    \"To: " . reply_to,
     \"Cc: ",
     \"Bcc: ",
     \"Subject: Re: " . email.subject,
@@ -90,12 +96,18 @@ function! iris#email#ui#reply_all()
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
 
+  if email["reply-to"]
+    let reply_to = email["reply-to"]
+  else
+    let reply_to = email["from"]
+  endif
+
   silent! bdelete "Iris reply all"
   silent! edit Iris reply all
 
   call append(0, [
     \"In-Reply-To: " . email["message-id"],
-    \"To: " . email.from,
+    \"To: " . reply_to,
     \"Cc: " . (has_key(email, "cc") ? email.cc : ""),
     \"Bcc: " . (has_key(email, "bcc") ? email.bcc : ""),
     \"Subject: Re: " . email.subject,
@@ -118,8 +130,8 @@ function! iris#email#ui#forward()
 
   call append(0, [
     \"To: ",
-    \"CC: ",
-    \"BCC: ",
+    \"Cc: ",
+    \"Bcc: ",
     \"Subject: Fwd: " . email.subject,
     \"",
     \"---------- Forwarded message ---------",

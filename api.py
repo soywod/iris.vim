@@ -14,7 +14,7 @@ from base64 import b64decode
 from email import policy
 from email.header import Header, decode_header
 from email.mime.text import MIMEText
-from email.parser import BytesParser
+from email.parser import BytesParser, BytesHeaderParser
 from email.utils import formataddr
 from email.utils import formatdate
 from email.utils import make_msgid
@@ -61,9 +61,10 @@ def get_emails(last_seq):
 
     chunk_size = 50
     ids = "%d:%d" % (last_seq, last_seq - chunk_size) if (last_seq > chunk_size) else "%d:%d" % (last_seq, 1)
-    fetch = imap_client.fetch(ids, ["ENVELOPE", "INTERNALDATE", "FLAGS"])
+    fetch = imap_client.fetch(ids, ["ENVELOPE", "INTERNALDATE", "FLAGS", "BODY.PEEK[HEADER]"])
 
     for [uid, data] in fetch.items():
+        header = BytesHeaderParser(policy=policy.default).parsebytes(data[b"BODY[HEADER]"])
         envelope = data[b"ENVELOPE"]
         subject = decode_byte(envelope.subject)
         from_ = envelope.from_[0]
@@ -80,6 +81,7 @@ def get_emails(last_seq):
         email["date"] = date_
         email["flags"] = get_flags_str(data[b"FLAGS"])
         email["message-id"] = envelope.message_id.decode()
+        email["reply-to"] = header["Reply-To"] if "Reply-To" in header else None
 
         emails.insert(0, email)
 
