@@ -58,7 +58,7 @@ function! iris#email#ui#new()
 
   normal! ddgg$
 
-  setlocal filetype=mail
+  setlocal filetype=iris-edit
   let &modified = 0
 endfunction
 
@@ -81,7 +81,7 @@ function! iris#email#ui#reply()
 
   normal! dd6G
 
-  setlocal filetype=mail
+  setlocal filetype=iris-edit
   let &modified = 0
 endfunction
 
@@ -104,7 +104,7 @@ function! iris#email#ui#reply_all()
 
   normal! dd6G
 
-  setlocal filetype=mail
+  setlocal filetype=iris-edit
   let &modified = 0
 endfunction
 
