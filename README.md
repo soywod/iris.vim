@@ -126,29 +126,30 @@ let g:iris_idle_timeout = 15
 ```
 
 ## Keybinds
-### From mail list interface
 
-Function | Keybind
---- | ---
-text preview | `<Enter>`
-html preview | `gp` (for `go preview`)
-new mail | `gn` (for `go new`)
-change folder | `gf` (for `go folder`)
+### From mail list
 
-### From mail preview interface
+Function | Default keybind | Override
+--- | --- | ---
+Preview (text) | `<Enter>` | `nmap <cr> <plug>(iris-preview-text-email)`
+Preview (html) | `gp` (for `go preview`) | `nmap gp <plug>(iris-preview-html-email)`
+New mail | `gn` (for `go new`) | `nmap gn <plug>(iris-new-email)`
+Change folder | `gf` (for `go folder`) | `nmap gf <plug>(iris-change-folder)`
 
-Function | Keybind
---- | ---
-reply | `gr` (for `go reply`)
-reply all | `gR` (for `go reply all`)
-forward | `gf` (for `go forward`)
+### From mail preview
 
-### From mail edition interface
+Function | Default keybind | Override
+--- | --- | ---
+Reply | `gr` (for `go reply`) | `nmap gr <plug>(iris-reply-email)`
+Reply all | `gR` (for `go reply all`) | `nmap gR <plug>(iris-reply-all-email)`
+Forward | `gf` (for `go forward`) | `nmap gf <plug>(iris-forward-email)`
 
-Function | Keybind
---- | ---
-save draft | `:w`
-send | `gs` (for `go send`)
+### From mail edition
+
+Function | Default keybind | Override
+--- | --- | ---
+Save draft | `:w` | `-`
+Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
 
 ## Contributing
 

@@ -58,3 +58,13 @@ function! iris#utils#elog(msg)
   let msg = printf("Iris: %s", a:msg)
   redraw | echohl ErrorMsg | echom msg | echohl None
 endfunction
+
+function! iris#utils#define_maps(maps)
+  for [mode, key, plug] in a:maps
+    let plug = printf("<plug>(iris-%s)", plug)
+
+    if !hasmapto(plug, mode)
+      execute printf("%smap <nowait> <buffer> %s %s", mode, key, plug)
+    endif
+  endfor
+endfunction
