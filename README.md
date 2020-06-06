@@ -7,13 +7,16 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
 ## Table of contents
 
   - [Motivation](#motivation)
+  - [Requirements](#requirements)
   - [Installation](#installation)
   - [Configuration](#configuration)
     - [1. Identity](#1-identity)
     - [2. IMAP](#2-imap)
     - [3. SMTP](#3-identity)
     - [4. Passwords](#4-passwords-optional)
+    - [5. Idle mode](#5-idle-mode-optional)
   - [Usage](#usage)
+    - [List mails](#list-mails)
     - [Change folder](#change-folder)
   - [Keybinds](#keybinds)
   - [Contributing](#contributing)
@@ -23,11 +26,20 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
 (Neo)Mutt and Alpine are very good terminal mail clients, but they lack of Vim
 mappings. You can emulate, but it requires a lot of time, patience and
 configuration. Why trying to emulate, when you can have it in Vim? VimL and
-Python are strong enough to do so. The aim of Iris is to provide a simple mail client that:
+Python are strong enough to do so. The aim of Iris is to provide a simple mail
+client that:
 
   - Allows you to manage your mails inside Vim
-  - Does not slow down neither Vim nor your workflow (lazy)
-  - Uses an [IMAP python lib](https://github.com/mjs/imapclient) to avoid implementing IMAP protocol logic
+  - Does not slow down neither Vim nor your workflow (async+lazy)
+  - Is built on the top of a robust [Python IMAP client](https://github.com/mjs/imapclient) to avoid implementing IMAP protocol logic
+
+## Requirements
+
+You need either Neovim or Vim8+ with:
+
+  - Python3 support enabled (`:echo has("python3")`)
+  - Job enabled (`:echo has("job")`)
+  - Channel enabled (`:echo has("channel")`)
 
 ## Installation
 
@@ -39,8 +51,7 @@ Plug "soywod/iris.vim"
 
 ## Configuration
 
-Before using Iris, you need to configure it via global variables (they need to
-be added in your `.vimrc`).
+Before using Iris, you need to configure it:
 
 ### 1. Identity
 
@@ -88,7 +99,21 @@ let g:iris_imap_passwd_show_cmd = "security find-internet-password -gs IMAP_KEY 
 let g:iris_smtp_passwd_show_cmd = "security find-internet-password -gs SMTP_KEY -w"
 ```
 
+### 5. Idle mode (optional)
+
+On startup, Iris spawns two Python jobs: one for the API, one for the [idle
+mode](https://imapclient.readthedocs.io/en/2.1.0/advanced.html#watching-a-mailbox-using-idle).
+The last one allows you to receive notifications on new mails. You can disable
+this option or change the default timeout (every 15s):
+
+```vim
+let g:iris_idle_enabled = 1
+let g:iris_idle_timeout = 15
+```
+
 ## Usage
+
+### List mails
 
 ```vim
 :Iris
@@ -142,7 +167,9 @@ proposing a pull request.
 
 ## Credits
 
-  - Python lib [imapclient](https://github.com/mjs/imapclient)
+  - [Neomutt](https://neomutt.org/)
+  - [Alpine](http://alpine.x10host.com/alpine/alpine-info/)
+  - [IMAPClient](https://github.com/mjs/imapclient)
     - Class [IMAPClient](https://github.com/mjs/imapclient/blob/580dc6781b5bf9d4f2a1a74b5d4168ef9b842b87/imapclient/imapclient.py#L162)
     - [Example](https://github.com/mjs/imapclient/blob/master/examples/example.py)
     - [Idle example](https://github.com/mjs/imapclient/blob/master/examples/idle_example.py)
