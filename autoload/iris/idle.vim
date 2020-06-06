@@ -25,7 +25,7 @@ function! iris#idle#login(passwd)
     \"imap-host": g:iris_imap_host,
     \"imap-port": g:iris_imap_port,
     \"imap-login": g:iris_imap_login,
-    \"imap-password": a:passwd,
+    \"imap-passwd": a:passwd,
     \"idle-timeout": g:iris_idle_timeout,
   \})
 endfunction

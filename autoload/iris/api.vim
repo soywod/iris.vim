@@ -51,11 +51,11 @@ function! iris#api#login(imap_passwd, smtp_passwd)
     \"imap-host": g:iris_imap_host,
     \"imap-port": g:iris_imap_port,
     \"imap-login": g:iris_imap_login,
-    \"imap-password": a:imap_passwd,
+    \"imap-passwd": a:imap_passwd,
     \"smtp-host": g:iris_smtp_host,
     \"smtp-port": g:iris_smtp_port,
     \"smtp-login": g:iris_smtp_login,
-    \"smtp-password": a:smtp_passwd,
+    \"smtp-passwd": a:smtp_passwd,
   \})
 endfunction
 

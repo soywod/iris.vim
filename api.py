@@ -20,7 +20,7 @@ from email.utils import formatdate
 from email.utils import make_msgid
 from imapclient.imapclient import IMAPClient
 
-logging.basicConfig(filename="/tmp/iris-api.log", level=logging.INFO)
+logging.basicConfig(filename="/tmp/iris-api.log", format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
 
 imap_client = None
 imap_host = imap_port = imap_login = imap_passwd = None
@@ -145,22 +145,23 @@ def decode_byte(byte):
 
 while True:
     request_raw = sys.stdin.readline()
-    logging.info(request_raw.rstrip())
 
     try: request = json.loads(request_raw.rstrip())
     except: continue
+
+    logging.info("Receive: " + str({key: request[key] for key in request if key not in ["imap-passwd", "smtp-passwd"]}))
 
     if request["type"] == "login":
         try:
             imap_host = request["imap-host"]
             imap_port = request["imap-port"]
             imap_login = request["imap-login"]
-            imap_passwd = request["imap-password"]
+            imap_passwd = request["imap-passwd"]
 
             smtp_host = request["smtp-host"]
             smtp_port = request["smtp-port"]
             smtp_login = request["smtp-login"]
-            smtp_passwd = request["smtp-password"]
+            smtp_passwd = request["smtp-passwd"]
 
             imap_client = IMAPClient(host=imap_host, port=imap_port)
             imap_client.login(imap_login, imap_passwd)
@@ -215,6 +216,6 @@ while True:
             response = dict(success=False, type="send-email", error=str(error))
 
     json_response = json.dumps(response)
-    logging.info(json_response)
+    logging.info("Send: " + str(json_response))
     sys.stdout.write(json_response + "\n")
     sys.stdout.flush()
