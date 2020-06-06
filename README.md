@@ -78,8 +78,8 @@ let g:iris_smtp_login = "Your IMAP login" "Default to g:iris_mail
 
 ### 4. Passwords (optional)
 
-On startup, Iris will always ask for your IMAP and SMTP passwords. To avoid
-this, you can save your password in a file and encrypt it via
+On startup, Iris always asks for your IMAP and SMTP passwords. To avoid this,
+you can save your password in a file and encrypt it via
 [GPG](https://gnupg.org/):
 
 ```bash
@@ -92,7 +92,7 @@ let g:iris_smtp_passwd_filepath = "/path/to/smtp.gpg"
 ```
 
 If you want to use something else than GPG, you can set up your custom command.
-For eg., using the MacOSX `security` tool:
+For eg., with the MacOSX `security` tool:
 
 ```vim
 let g:iris_imap_passwd_show_cmd = "security find-internet-password -gs IMAP_KEY -w"
