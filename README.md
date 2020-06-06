@@ -19,6 +19,7 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
     - [List mails](#list-mails)
     - [Change folder](#change-folder)
   - [Keybinds](#keybinds)
+  - [Changelog](https://github.com/soywod/iris.vim/blob/master/CHANGELOG.md)
   - [Contributing](#contributing)
 
 ## Motivation
