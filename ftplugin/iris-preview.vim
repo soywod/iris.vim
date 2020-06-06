@@ -12,6 +12,6 @@ setlocal nomodifiable
 setlocal nowrap
 setlocal startofline
 
-nnoremap <buffer><nowait><silent> gr :call iris#email#ui#reply()    <CR>
-nnoremap <buffer><nowait><silent> gR :call iris#email#ui#reply_all()<CR>
-nnoremap <buffer><nowait><silent> gf :call iris#email#ui#forward()  <CR>
+nnoremap <buffer> <nowait> <silent> gr  :call iris#ui#reply_email()    <cr>
+nnoremap <buffer> <nowait> <silent> gR  :call iris#ui#reply_all_email()<cr>
+nnoremap <buffer> <nowait> <silent> gf  :call iris#ui#forward_email()  <cr>

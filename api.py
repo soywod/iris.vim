@@ -20,37 +20,11 @@ from email.utils import formatdate
 from email.utils import make_msgid
 from imapclient.imapclient import IMAPClient
 
-logging.basicConfig(filename="/tmp/iris.log", level=logging.INFO)
+logging.basicConfig(filename="/tmp/iris-api.log", level=logging.INFO)
 
 imap_client = None
 imap_host = imap_port = imap_login = imap_passwd = None
 smtp_host = smtp_port = smtp_login = smtp_passwd = None
-
-idle_thread = None
-is_idle = is_folder_selected = False
-
-def notify_new_mail():
-    title = "Iris"
-    msg = "New mail available!"
-
-    if sys.platform == "darwin":
-        cmd = ["terminal-notifier", "-title", title, "-message", msg]
-    else:
-        cmd = ["notify-send", title, msg]
-
-    subprocess.Popen(cmd)
-
-def handle_idle():
-    while True:
-        global imap_client, is_idle
-
-        if not is_idle: break
-        idle_res = imap_client.idle_check(timeout=15)
-
-        if idle_res: logging.info("idle received: " + str(idle_res))
-
-        for res in idle_res:
-            if res[1] == b"EXISTS": notify_new_mail()
 
 def get_emails(last_seq):
     global imap_client
@@ -196,26 +170,6 @@ while True:
             response = dict(success=True, type="login", folders=folders)
         except Exception as error:
             response = dict(success=False, type="login", error=str(error))
-
-    elif request["type"] == "start-idle" and not is_idle:
-        try:
-            is_idle = True
-            imap_client.idle()
-            idle_thread = threading.Thread(target=handle_idle)
-            idle_thread.setDaemon(True)
-            idle_thread.start()
-            response = dict(success=True, type="start-idle")
-        except Exception as error:
-            response = dict(success=False, type="start-idle")
-
-    elif request["type"] == "stop-idle" and is_idle:
-        try:
-            is_idle = False
-            idle_thread.join()
-            imap_client.idle_done()
-            response = dict(success=True, type="stop-idle")
-        except Exception as error:
-            response = dict(success=False, type="stop-idle")
 
     elif request["type"] == "fetch-emails":
         try:

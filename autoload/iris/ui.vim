@@ -14,7 +14,17 @@ let s:config = {
   \},
 \}
 
-function! iris#email#ui#list()
+function! iris#ui#select_folder()
+  let folder  = iris#cache#read("folder", "INBOX")
+  let folders = iris#cache#read("folders", [])
+
+  echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ", ") . ": "
+  let choice = nr2char(getchar())
+
+  call iris#api#select_folder(folders[choice])
+endfunction
+
+function! iris#ui#list_email()
   redraw | echo
   let folder = iris#cache#read("folder", "INBOX")
   let emails = iris#cache#read("emails", [])
@@ -28,7 +38,7 @@ function! iris#email#ui#list()
   setlocal filetype=iris-list
 endfunction
 
-function! iris#email#ui#preview(email, format)
+function! iris#ui#preview_email(email, format)
   if a:format == "text"
     let email = substitute(a:email, "", "", "g")
 
@@ -44,7 +54,7 @@ function! iris#email#ui#preview(email, format)
   endif
 endfunction
 
-function! iris#email#ui#new()
+function! iris#ui#new_email()
   silent! bdelete "Iris new"
   silent! edit Iris new
 
@@ -62,7 +72,7 @@ function! iris#email#ui#new()
   let &modified = 0
 endfunction
 
-function! iris#email#ui#reply()
+function! iris#ui#reply_email()
   let index = iris#cache#read("email:index", 0)
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
@@ -73,7 +83,6 @@ function! iris#email#ui#reply()
     let reply_to = email["reply-to"]
   endif
 
-  echom string(email)
   silent! bdelete "Iris reply"
   silent! edit Iris reply
 
@@ -92,7 +101,7 @@ function! iris#email#ui#reply()
   let &modified = 0
 endfunction
 
-function! iris#email#ui#reply_all()
+function! iris#ui#reply_all_email()
   let index = iris#cache#read("email:index", 0)
   let email = iris#cache#read("emails", [])[index]
   let message = map(getline(1, "$"), "'>' . v:val")
@@ -121,7 +130,7 @@ function! iris#email#ui#reply_all()
   let &modified = 0
 endfunction
 
-function! iris#email#ui#forward()
+function! iris#ui#forward_email()
   let index = iris#cache#read("email:index", 0)
   let email = iris#cache#read("emails", [])[index]
   let message = getline(1, "$")
@@ -144,13 +153,13 @@ function! iris#email#ui#forward()
   let &modified = 0
 endfunction
 
-function! iris#email#ui#save()
+function! iris#ui#save_email()
   call iris#cache#write("draft", getline(1, "$"))
   call iris#utils#log("draft saved!")
   let &modified = 0
 endfunction
 
-function! iris#email#ui#send()
+function! iris#ui#send_email()
   redraw | echo
   let draft = iris#cache#read("draft", [])
 
@@ -167,7 +176,7 @@ function! iris#email#ui#send()
   let message = join(draft[separator_idx+1:], "\r\n")
 
   silent! bdelete
-  call iris#email#api#send({
+  call iris#api#send_email({
     \"headers": headers,
     \"message": message,
     \"from": {
@@ -215,3 +224,18 @@ function! s:get_focused_email()
   
   return emails[index]
 endfunction
+
+function! iris#ui#prompt_passwd(filepath, show_cmd, prompt)
+  if empty(a:filepath)
+    if empty(a:show_cmd)
+      redraw | echo
+      let prompt = "Iris: " . a:prompt . ":\n> "
+      return iris#utils#pipe("inputsecret", "iris#utils#trim")(prompt)
+    else
+      return systemlist(a:show_cmd)[0]
+    endif
+  else
+    return systemlist(printf(g:iris_passwd_show_cmd, a:filepath))[0]
+  endif
+endfunction
+
