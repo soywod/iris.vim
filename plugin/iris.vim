@@ -19,5 +19,7 @@ let g:iris_smtp_passwd_show_cmd = get(g:, "iris_smtp_passwd_show_cmd", g:iris_im
 let g:iris_idle_enabled = get(g:, "iris_idle_enabled", 1)
 let g:iris_idle_timeout = get(g:, "iris_idle_timeout", 15)
 
+let g:iris_emails_chunk_size = get(g:, "iris_emails_chunk_size", 50)
+
 command! Iris call iris#start()
 command! IrisFolder call iris#ui#select_folder()

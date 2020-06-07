@@ -21,6 +21,7 @@ function! s:handle_data(data_raw)
   elseif data.type == "select-folder"
     call iris#cache#write("folder", data.folder)
     call iris#cache#write("seq", data.seq)
+    call iris#cache#write("page", 0)
     call iris#cache#write("emails", data.emails)
     call iris#ui#list_email()
     call iris#utils#log("folder changed!")
@@ -64,14 +65,46 @@ function! iris#api#select_folder(folder)
   call s:send({
     \"type": "select-folder",
     \"folder": a:folder,
+    \"chunk-size": g:iris_emails_chunk_size,
   \})
 endfunction
 
 function! iris#api#fetch_all_emails()
+  let seq = iris#cache#read("seq", 0)
+  let page = iris#cache#read("page", 0)
+
   call iris#utils#log("fetching emails...")
   call s:send({
     \"type": "fetch-emails",
-    \"seq": iris#cache#read("seq", 0),
+    \"seq": seq + page,
+    \"chunk-size": g:iris_emails_chunk_size,
+  \})
+endfunction
+
+function! iris#api#prev_page_emails()
+  let seq = iris#cache#read("seq", 0)
+  let page = iris#cache#read("page", 0) - 1
+  if page < 0 | let page = 0 | endif
+  call iris#cache#write("page", page)
+
+  call iris#utils#log("fetching previous page...")
+  call s:send({
+    \"type": "fetch-emails",
+    \"seq": seq - (page * g:iris_emails_chunk_size),
+    \"chunk-size": g:iris_emails_chunk_size,
+  \})
+endfunction
+
+function! iris#api#next_page_emails()
+  let seq = iris#cache#read("seq", 0)
+  let page = iris#cache#read("page", 0) + 1
+  call iris#cache#write("page", page)
+
+  call iris#utils#log("fetching next page...")
+  call s:send({
+    \"type": "fetch-emails",
+    \"seq": seq - (page * g:iris_emails_chunk_size),
+    \"chunk-size": g:iris_emails_chunk_size,
   \})
 endfunction
 

@@ -181,7 +181,7 @@ function! iris#ui#send_email()
     \"message": message,
     \"from": {
       \"name": g:iris_name,
-      \"mail": g:iris_mail,
+      \"email": g:iris_mail,
     \}
   \})
 endfunction

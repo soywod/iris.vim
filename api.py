@@ -26,14 +26,13 @@ imap_client = None
 imap_host = imap_port = imap_login = imap_passwd = None
 smtp_host = smtp_port = smtp_login = smtp_passwd = None
 
-def get_emails(last_seq):
+def get_emails(last_seq, chunk_size):
     global imap_client
 
     emails = []
     if last_seq == 0:
         return emails
 
-    chunk_size = 50
     ids = "%d:%d" % (last_seq, last_seq - chunk_size) if (last_seq > chunk_size) else "%d:%d" % (last_seq, 1)
     fetch = imap_client.fetch(ids, ["ENVELOPE", "INTERNALDATE", "FLAGS", "BODY.PEEK[HEADER]"])
 
@@ -174,7 +173,7 @@ while True:
 
     elif request["type"] == "fetch-emails":
         try:
-            emails = get_emails(request["seq"])
+            emails = get_emails(request["seq"], request["chunk-size"])
             response = dict(success=True, type="fetch-emails", emails=emails)
         except Exception as error:
             response = dict(success=False, type="fetch-emails", error=str(error))
@@ -190,7 +189,7 @@ while True:
         try:
             folder = request["folder"]
             seq = imap_client.select_folder(folder)[b"UIDNEXT"]
-            emails = get_emails(seq)
+            emails = get_emails(seq, request["chunk-size"])
             is_folder_selected = True
             response = dict(success=True, type="select-folder", folder=folder, seq=seq, emails=emails)
         except Exception as error:
@@ -200,7 +199,7 @@ while True:
         try:
             message = MIMEText(request["message"])
             for key, val in request["headers"].items(): message[key] = val
-            message["From"] = formataddr((request["from"]["name"], request["from"]["mail"]))
+            message["From"] = formataddr((request["from"]["name"], request["from"]["email"]))
             message["Message-Id"] = make_msgid()
 
             smtp = smtplib.SMTP(host=smtp_host, port=smtp_port)
