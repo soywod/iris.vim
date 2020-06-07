@@ -8,6 +8,6 @@ function! iris#job#send(job, data)
   execute "call iris#job#" . s:editor . "#send(a:job, a:data)"
 endfunction
 
-function! iris#job#close()
+function! iris#job#close(...)
   call iris#utils#elog("job: connection lost")
 endfunction
