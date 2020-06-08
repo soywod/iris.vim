@@ -36,7 +36,7 @@ def get_contacts():
         envelope = data[b"ENVELOPE"]
         contacts = contacts.union(decode_contacts(envelope.to))
 
-    return sorted(list(contacts))
+    return list(contacts)
 
 def get_emails(last_seq, chunk_size):
     global imap_client
@@ -235,6 +235,10 @@ while True:
             smtp.quit()
 
             imap_client.append("Sent", message.as_string())
+
+            contacts_file = open(os.path.dirname(sys.argv[0]) + "/.contacts", "a")
+            contacts_file.write(request["headers"]["To"] + "\n")
+            contacts_file.close()
 
             response = dict(success=True, type="send-email")
         except Exception as error:
