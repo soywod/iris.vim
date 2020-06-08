@@ -38,6 +38,9 @@ function! s:handle_data(data_raw)
   elseif data.type == "send-email"
     call iris#cache#write("draft", [])
     call iris#utils#log("email sent!")
+
+  elseif data.type == "extract-contacts"
+    call iris#utils#log("contacts extracted!")
   endif
 endfunction
 
@@ -134,4 +137,9 @@ function! iris#api#add_flag(data)
   call s:send(iris#utils#assign(a:data, {
     \"type": "add-flag",
   \}))
+endfunction
+
+function! iris#api#extract_contacts()
+  call iris#utils#log("extracting contacts...")
+  call s:send({"type": "extract-contacts"})
 endfunction

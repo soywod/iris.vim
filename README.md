@@ -38,9 +38,9 @@ client that:
 
 You need either Neovim or Vim8+ with:
 
-  - Python3 support enabled (`:echo has("python3")`)
-  - Job enabled (`:echo has("job")`)
-  - Channel enabled (`:echo has("channel")`)
+  - Python3 support enabled `:echo has("python3")`
+  - Job enabled `:echo has("job")`
+  - Channel enabled `:echo has("channel")`
 
 ## Installation
 
@@ -155,7 +155,7 @@ Forward | `gf` (for `go forward`) | `nmap gf <plug>(iris-forward-email)`
 
 Function | Default keybind | Override
 --- | --- | ---
-Save draft | `:w` | `-`
+Save draft | `:w` |
 Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
 
 ## Contributing

@@ -23,3 +23,4 @@ let g:iris_emails_chunk_size = get(g:, "iris_emails_chunk_size", 50)
 
 command! Iris call iris#start()
 command! IrisFolder call iris#ui#select_folder()
+command! IrisExtractContacts call iris#api#extract_contacts()

@@ -26,6 +26,18 @@ imap_client = None
 imap_host = imap_port = imap_login = imap_passwd = None
 smtp_host = smtp_port = smtp_login = smtp_passwd = None
 
+no_reply_pattern = r"^.*no[\-_ t]*reply"
+
+def get_contacts():
+    contacts = set()
+    fetch = imap_client.fetch("1:*", ["ENVELOPE"])
+
+    for [_, data] in fetch.items():
+        envelope = data[b"ENVELOPE"]
+        contacts = contacts.union(decode_contacts(envelope.to))
+
+    return sorted(list(contacts))
+
 def get_emails(last_seq, chunk_size):
     global imap_client
 
@@ -142,6 +154,20 @@ def decode_byte(byte):
 
     return "".join([_decode_byte(val, encoding) for val, encoding in decode_list])
 
+def decode_contacts(contacts):
+    return list(filter(None.__ne__, [decode_contact(c) for c in contacts or []]))
+
+def decode_contact(contact):
+    if not contact.mailbox or not contact.host: return None
+
+    mailbox = decode_byte(contact.mailbox)
+    if re.match(no_reply_pattern, mailbox): return None
+
+    host = decode_byte(contact.host)
+    if re.match(no_reply_pattern, host): return None
+
+    return "@".join([mailbox, host]).lower()
+
 while True:
     request_raw = sys.stdin.readline()
 
@@ -213,6 +239,17 @@ while True:
             response = dict(success=True, type="send-email")
         except Exception as error:
             response = dict(success=False, type="send-email", error=str(error))
+
+    elif request["type"] == "extract-contacts":
+        try:
+            contacts = get_contacts()
+            contacts_file = open(os.path.dirname(sys.argv[0]) + "/.contacts", "w+")
+            for contact in contacts: contacts_file.write(contact + "\n")
+            contacts_file.close()
+
+            response = dict(success=True, type="extract-contacts")
+        except Exception as error:
+            response = dict(success=False, type="extract-contacts", error=str(error))
 
     json_response = json.dumps(response)
     logging.info("Send: " + str(json_response))

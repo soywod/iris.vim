@@ -6,7 +6,7 @@ function! IrisContactsComplete(findstart, base)
     normal b
     return col(".") - 1
   else
-    return filter(s:contacts, printf("v:val =~ '.*%s.*'", a:base))
+    return filter(copy(s:contacts), printf("v:val =~ '.*%s.*'", a:base))
   endif
 endfunction
 
