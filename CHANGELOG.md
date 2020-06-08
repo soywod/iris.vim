@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent asking passwords on startup via GPG [#2]
 - Use vim builtin mail syntax `syntax/mail.vim` [#8]
 - Split idle mode into its own subprocess [#9]
+- Improve table column size and position [#21]
 
 ### Fixed
 
@@ -45,3 +46,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#18]: https://github.com/soywod/iris.vim/issues/18
 [#19]: https://github.com/soywod/iris.vim/issues/19
 [#20]: https://github.com/soywod/iris.vim/issues/20
+[#21]: https://github.com/soywod/iris.vim/issues/21

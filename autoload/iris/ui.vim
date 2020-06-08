@@ -1,9 +1,9 @@
 let s:config = {
   \"list.from": {
-    \"columns": ["from", "subject", "date", "flags"],
+    \"columns": ["flags", "from", "subject", "date"],
   \},
   \"list.to": {
-    \"columns": ["to", "subject", "date", "flags"],
+    \"columns": ["flags", "to", "subject", "date"],
   \},
   \"labels": {
     \"from": "FROM",
