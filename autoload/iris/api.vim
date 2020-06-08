@@ -112,6 +112,7 @@ function! iris#api#next_page_emails()
 endfunction
 
 function! iris#api#preview_email(index, format)
+  echom 'COUCOU'
   if a:index < 2 | return iris#utils#elog("email not found") | endif
 
   let emails = iris#cache#read("emails", [])

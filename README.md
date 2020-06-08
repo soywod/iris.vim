@@ -131,7 +131,8 @@ let g:iris_idle_timeout = 15
 
 In order to autocomplete addresses, Iris keeps a `.contacts` file that contains
 mails of your contacts. It's updated each time you send a new mail (only the
-`To` header is used). To extract all addresses from all your existing mails:
+`To` header is used). You can extract all addresses from all your existing
+mails:
 
 ```vim
 :IrisExtractContacts
@@ -146,7 +147,7 @@ Function | Default keybind | Override
 Preview (text) | `<Enter>` | `nmap <cr> <plug>(iris-preview-text-email)`
 Preview (html) | `gp` (for `go preview`) | `nmap gp <plug>(iris-preview-html-email)`
 New mail | `gn` (for `go new`) | `nmap gn <plug>(iris-new-email)`
-Previous page | `<Ctrl+p>` (for `page previous`) | `nmap <c-p> <plug>(iris-prev-page-emails)`
+Previous page | `<Ctrl+b>` (for `page backward`) | `nmap <c-b> <plug>(iris-prev-page-emails)`
 Next page | `<Ctrl+f>` (for `page forward`) | `nmap <c-f> <plug>(iris-next-page-emails)`
 Change folder | `gf` (for `go folder`) | `nmap gf <plug>(iris-change-folder)`
 

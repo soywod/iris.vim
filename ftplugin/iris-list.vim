@@ -13,7 +13,7 @@ nnoremap <silent> <plug>(iris-select-folder)      :call iris#ui#select_folder() 
 
 call iris#utils#define_maps([
   \["n", "<cr>",  "preview-text-email"],
-  \["n", "gp",    "preview-text-email"],
+  \["n", "gp",    "preview-html-email"],
   \["n", "gn",    "new-email"         ],
   \["n", "<c-b>", "prev-page-emails"  ],
   \["n", "<c-f>", "next-page-emails"  ],
