@@ -18,6 +18,7 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
   - [Usage](#usage)
     - [List mails](#list-mails)
     - [Change folder](#change-folder)
+    - [Contacts](#contacts)
   - [Keybinds](#keybinds)
   - [Changelog](https://github.com/soywod/iris.vim/blob/master/CHANGELOG.md)
   - [Contributing](#contributing)
@@ -124,6 +125,16 @@ let g:iris_idle_timeout = 15
 
 ```vim
 :IrisFolder
+```
+
+### Contacts
+
+In order to autocomplete addresses, Iris keeps a `.contacts` file that contains
+mails of your contacts. It's updated each time you send a new mail (only the
+`To` header is used). To extract all addresses from all your existing mails:
+
+```vim
+:IrisExtractContacts
 ```
 
 ## Keybinds
