@@ -15,9 +15,7 @@ from email import policy
 from email.header import Header, decode_header
 from email.mime.text import MIMEText
 from email.parser import BytesParser, BytesHeaderParser
-from email.utils import formataddr
-from email.utils import formatdate
-from email.utils import make_msgid
+from email.utils import formataddr, formatdate, make_msgid
 from imapclient.imapclient import IMAPClient
 
 logging.basicConfig(filename="/tmp/iris-api.log", format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
@@ -46,11 +44,14 @@ def get_emails(last_seq, chunk_size):
         return emails
 
     ids = "%d:%d" % (last_seq, last_seq - chunk_size) if (last_seq > chunk_size) else "%d:%d" % (last_seq, 1)
-    fetch = imap_client.fetch(ids, ["ENVELOPE", "INTERNALDATE", "FLAGS", "BODY.PEEK[HEADER]"])
+    fetch = imap_client.fetch(ids, ["FLAGS", "ENVELOPE", "INTERNALDATE", "BODY.PEEK[HEADER]", "BODYSTRUCTURE", "FLAGS"])
 
     for [uid, data] in fetch.items():
         header = BytesHeaderParser(policy=policy.default).parsebytes(data[b"BODY[HEADER]"])
         envelope = data[b"ENVELOPE"]
+        logging.info(data[b"BODYSTRUCTURE"])
+        struct = data[b"BODYSTRUCTURE"][0] if isinstance(data[b"BODYSTRUCTURE"][0], list) else []
+        has_attachment = len([mime[0] for mime in struct if mime[0] and mime[0] not in [b"text", b"multipart"]]) > 0
         subject = decode_byte(envelope.subject)
         from_ = envelope.from_[0]
         from_ = "@".join([decode_byte(from_.mailbox), decode_byte(from_.host)])
@@ -64,7 +65,7 @@ def get_emails(last_seq, chunk_size):
         email["from"] = from_
         email["to"] = to
         email["date"] = date_
-        email["flags"] = get_flags_str(data[b"FLAGS"])
+        email["flags"] = get_flags_str(data[b"FLAGS"], has_attachment)
         email["message-id"] = envelope.message_id.decode()
         email["reply-to"] = header["Reply-To"] if "Reply-To" in header else None
 
@@ -80,13 +81,14 @@ def get_email(id, format):
 
     return content[format]
 
-def get_flags_str(flags):
+def get_flags_str(flags, has_attachment):
     flags_str = ""
 
     flags_str += "N" if not b"\\Seen" in flags else " "
-    flags_str += "@" if b"\\Answered" in flags else " "
-    flags_str += "!" if b"\\Flagged" in flags else " "
-    flags_str += "#" if b"\\Draft" in flags else " "
+    flags_str += "R" if b"\\Answered" in flags else " "
+    flags_str += "F" if b"\\Flagged" in flags else " "
+    flags_str += "D" if b"\\Draft" in flags else " "
+    flags_str += "@" if has_attachment else " "
 
     return flags_str
     
