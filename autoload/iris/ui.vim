@@ -14,6 +14,20 @@ let s:config = {
   \},
 \}
 
+function! iris#ui#prompt_passwd(filepath, show_cmd, prompt)
+  if empty(a:filepath)
+    if empty(a:show_cmd)
+      redraw | echo
+      let prompt = "Iris: " . a:prompt . ":\n> "
+      return iris#utils#pipe("inputsecret", "iris#utils#trim")(prompt)
+    else
+      return systemlist(a:show_cmd)[0]
+    endif
+  else
+    return systemlist(printf(g:iris_passwd_show_cmd, a:filepath))[0]
+  endif
+endfunction
+
 function! iris#ui#select_folder()
   let folder  = iris#cache#read("folder", "INBOX")
   let folders = iris#cache#read("folders", [])
@@ -202,8 +216,8 @@ function! s:render_line(line, max_widths, type)
 endfunction
 
 function! s:render_cell(cell, max_width)
-  let cell_width = strdisplaywidth(a:cell[:a:max_width])
-  return a:cell[:a:max_width] . repeat(" ", a:max_width - cell_width) . " |"
+  let cell_width = strdisplaywidth(a:cell[:a:max_width-1])
+  return a:cell[:a:max_width-1] . repeat(" ", a:max_width - cell_width) . " |"
 endfunction
 
 function! s:get_max_widths(lines, columns)
@@ -213,6 +227,20 @@ function! s:get_max_widths(lines, columns)
     let widths = map(copy(a:columns), "strlen(line[v:val])")
     call map(max_widths, "max([widths[v:key], v:val])")
   endfor
+
+  let tbl_width = iris#utils#sum(max_widths) + len(max_widths) * 2 + 1
+  let win_width = winwidth(0)
+  let num_width = (&number || &relativenumber) ? &numberwidth : 0
+  let diff_width = tbl_width - win_width + num_width - 1
+
+  if diff_width > 0
+    let to_column_idx = index(s:config["list.to"]["columns"], "to")
+    let to_column_diff = diff_width / 3
+    let max_widths[to_column_idx] -= to_column_diff
+    let subject_column_idx = index(s:config["list.to"]["columns"], "subject")
+    let subject_column_diff = diff_width - to_column_diff + 1
+    let max_widths[subject_column_idx] -= subject_column_diff
+  endif
 
   return max_widths
 endfunction
@@ -224,18 +252,3 @@ function! s:get_focused_email()
   
   return emails[index]
 endfunction
-
-function! iris#ui#prompt_passwd(filepath, show_cmd, prompt)
-  if empty(a:filepath)
-    if empty(a:show_cmd)
-      redraw | echo
-      let prompt = "Iris: " . a:prompt . ":\n> "
-      return iris#utils#pipe("inputsecret", "iris#utils#trim")(prompt)
-    else
-      return systemlist(a:show_cmd)[0]
-    endif
-  else
-    return systemlist(printf(g:iris_passwd_show_cmd, a:filepath))[0]
-  endif
-endfunction
-
