@@ -1,20 +1,23 @@
 function! iris#job#neovim#start(script, handle_data)
   let cmd = printf("python3 '%s'", a:script)
   let opts = {
-    \"on_stdout": {id, data, evt -> s:handle_data(id, data, evt, a:handle_data)}
+    \"on_stdout": {_, data, __ -> s:handle_data(data, a:handle_data)},
   \}
 
   return jobstart(cmd, opts)
 endfunction
 
-function! s:handle_data(id, raw_data_list, event, handler)
-  if empty(a:raw_data_list)
-    return iris#job#close()
-  endif
+function! s:handle_data(raw_data_list, handler)
+  let raw_data_list = a:raw_data_list
+  if empty(raw_data_list) | return iris#job#close() | endif
 
-  for raw_data in a:raw_data_list
-    call a:handler(raw_data)
-  endfor
+  while 1
+    let eof = index(raw_data_list, "")
+    let raw_data = raw_data_list[:eof-1]
+    let raw_data_list = raw_data_list[eof+1:]
+    call a:handler(join(raw_data, ""))
+    if eof == -1 | break | endif
+  endwhile
 endfunction
 
 function! iris#job#neovim#send(job, data)
