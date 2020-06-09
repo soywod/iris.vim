@@ -10,16 +10,19 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Configuration](#configuration)
-    - [1. Identity](#1-identity)
-    - [2. IMAP](#2-imap)
-    - [3. SMTP](#3-identity)
-    - [4. Passwords](#4-passwords-optional)
-    - [5. Idle mode](#5-idle-mode-optional)
+    - [Identity](#identity-required)
+    - [IMAP](#imap-required)
+    - [SMTP](#identity-required)
+    - [Passwords](#passwords)
+    - [Idle mode](#idle-mode)
+    - [Pagination](#pagination)
+    - [Attachments](#attachments)
   - [Usage](#usage)
-    - [List mails](#list-mails)
-    - [Change folder](#change-folder)
+    - [Email list](#list-mails)
+    - [Email text preview](#email-text-preview)
+    - [Email composition](#email-composition)
+    - [Folder](#folder)
     - [Contacts](#contacts)
-  - [Keybinds](#keybinds)
   - [Changelog](https://github.com/soywod/iris.vim/blob/master/CHANGELOG.md)
   - [Contributing](#contributing)
 
@@ -55,14 +58,14 @@ Plug "soywod/iris.vim"
 
 Before using Iris, you need to configure it:
 
-### 1. Identity
+### Identity (required)
 
 ```vim
 let g:iris_name  = "My name"
 let g:iris_mail = "your@mail.com"
 ```
 
-### 2. IMAP
+### IMAP (required)
 
 ```vim
 let g:iris_imap_host  = "your.imap.host"
@@ -70,7 +73,7 @@ let g:iris_imap_port  = 993
 let g:iris_imap_login = "Your IMAP login" "Default to g:iris_mail
 ```
 
-### 3. SMTP
+### SMTP (required)
 
 ```vim
 let g:iris_smtp_host  = "your.smtp.host" "Default to g:iris_imap_host
@@ -78,7 +81,7 @@ let g:iris_smtp_port  = 587
 let g:iris_smtp_login = "Your IMAP login" "Default to g:iris_mail
 ```
 
-### 4. Passwords (optional)
+### Passwords
 
 On startup, Iris always asks for your IMAP and SMTP passwords. To avoid this,
 you can save your password in a file and encrypt it via
@@ -101,7 +104,7 @@ let g:iris_imap_passwd_show_cmd = "security find-internet-password -gs IMAP_KEY 
 let g:iris_smtp_passwd_show_cmd = "security find-internet-password -gs SMTP_KEY -w"
 ```
 
-### 5. Idle mode (optional)
+### Idle mode
 
 On startup, Iris spawns two Python jobs: one for the API, one for the [idle
 mode](https://imapclient.readthedocs.io/en/2.1.0/advanced.html#watching-a-mailbox-using-idle).
@@ -113,15 +116,70 @@ let g:iris_idle_enabled = 1
 let g:iris_idle_timeout = 15
 ```
 
+### Pagination
+
+By default, Iris fetches your last 50 mails:
+
+```vim
+let g:iris_emails_chunk_size = 50
+```
+
+*Note: the pagination is based on message sequences which is not necessary
+consecutive. It makes the pagination less accurate (doesn't fetch always the
+same amount of mails) but more performant.*
+
+### Attachments
+
+```vim
+let g:iris_download_dir = "~/Downloads"
+```
+
 ## Usage
 
-### List mails
+### Email list
 
 ```vim
 :Iris
 ```
 
-### Change folder
+Function | Default keybind | Override
+--- | --- | ---
+Preview (text) | `<Enter>` | `nmap <cr> <plug>(iris-preview-text-email)`
+Preview (html) | `gp` (for `go preview`) | `nmap gp <plug>(iris-preview-html-email)`
+Download attachments | `ga` (for `go attachments`) | `nmap ga <plug>(iris-download-attachments)`
+New mail | `gn` (for `go new`) | `nmap gn <plug>(iris-new-email)`
+Previous page | `<Ctrl+b>` (for `page backward`) | `nmap <c-b> <plug>(iris-prev-page-emails)`
+Next page | `<Ctrl+f>` (for `page forward`) | `nmap <c-f> <plug>(iris-next-page-emails)`
+Change folder | `gf` (for `go folder`) | `nmap gf <plug>(iris-change-folder)`
+
+### Email text preview
+
+From the email list, press `<Enter>` to preview the targeted email.
+
+Function | Default keybind | Override
+--- | --- | ---
+Reply | `gr` (for `go reply`) | `nmap gr <plug>(iris-reply-email)`
+Reply all | `gR` (for `go reply all`) | `nmap gR <plug>(iris-reply-all-email)`
+Forward | `gf` (for `go forward`) | `nmap gf <plug>(iris-forward-email)`
+
+### Email composition
+
+Iris is based on the builtin `mail.vim` filetype and syntax. An email should
+contains a list of headers followed by the message:
+
+```vim
+To: mail@test.com
+Subject: Welcome
+
+Hello world!
+```
+
+Function | Default keybind | Override
+--- | --- | ---
+Save draft | `:w` |
+Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
+
+### Folder
 
 ```vim
 :IrisFolder
@@ -130,45 +188,15 @@ let g:iris_idle_timeout = 15
 ### Contacts
 
 In order to autocomplete addresses, Iris keeps a `.contacts` file that contains
-mails of your contacts. It's updated each time you send a new mail (only the
-`To` header is used). You can extract all addresses from all your existing
-mails:
+emails of your contacts. It's updated each time you send a new email (only the
+`To` header is used). You can extract existing addresses from all your emails:
 
 ```vim
 :IrisExtractContacts
 ```
 
-## Keybinds
-
-### From mail list
-
-Function | Default keybind | Override
---- | --- | ---
-Preview (text) | `<Enter>` | `nmap <cr> <plug>(iris-preview-text-email)`
-Preview (html) | `gp` (for `go preview`) | `nmap gp <plug>(iris-preview-html-email)`
-New mail | `gn` (for `go new`) | `nmap gn <plug>(iris-new-email)`
-Previous page | `<Ctrl+b>` (for `page backward`) | `nmap <c-b> <plug>(iris-prev-page-emails)`
-Next page | `<Ctrl+f>` (for `page forward`) | `nmap <c-f> <plug>(iris-next-page-emails)`
-Change folder | `gf` (for `go folder`) | `nmap gf <plug>(iris-change-folder)`
-
-*Note: the pagination is based on message sequence which is not necessary
-consecutive. It makes the pagination less accurate (doesn't fetch always the
-same amount of mails) but more performant.*
-
-### From mail preview
-
-Function | Default keybind | Override
---- | --- | ---
-Reply | `gr` (for `go reply`) | `nmap gr <plug>(iris-reply-email)`
-Reply all | `gR` (for `go reply all`) | `nmap gR <plug>(iris-reply-all-email)`
-Forward | `gf` (for `go forward`) | `nmap gf <plug>(iris-forward-email)`
-
-### From mail edition
-
-Function | Default keybind | Override
---- | --- | ---
-Save draft | `:w` |
-Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
+*Note: the completion may need to be triggered manually via `<C-x><C-u>`, see
+`:h i_CTRL-X_CTRL-U`.*
 
 ## Contributing
 

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Options to toggle idle mode [#11]
 - Customizable keybinds [#18]
 - Pagination [#12]
+- Download attachments [#13]
 
 ### Changed
 
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#9]: https://github.com/soywod/iris.vim/issues/9
 [#11]: https://github.com/soywod/iris.vim/issues/11
 [#12]: https://github.com/soywod/iris.vim/issues/12
+[#13]: https://github.com/soywod/iris.vim/issues/13
 [#18]: https://github.com/soywod/iris.vim/issues/18
 [#19]: https://github.com/soywod/iris.vim/issues/19
 [#20]: https://github.com/soywod/iris.vim/issues/20
