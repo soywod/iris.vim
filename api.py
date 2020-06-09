@@ -121,10 +121,7 @@ def get_email_content(uid, data):
 
 def read_text(part):
     payload = part.get_payload(decode=True)
-    try: return quopri.decodestring(payload).decode()
-    except: pass
-    try: return payload.decode()
-    except: return part.get_payload()
+    return payload.decode(part.get_charset() or part.get_content_charset() or "utf-8")
 
 def read_html(part, uid):
     payload = read_text(part)
