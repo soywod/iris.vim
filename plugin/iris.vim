@@ -21,6 +21,8 @@ let g:iris_idle_timeout = get(g:, "iris_idle_timeout", 15)
 
 let g:iris_emails_chunk_size = get(g:, "iris_emails_chunk_size", 50)
 
+let g:iris_download_dir = get(g:, "iris_download_dir", "~/Downloads")
+
 command! Iris call iris#start()
 command! IrisFolder call iris#ui#select_folder()
 command! IrisExtractContacts call iris#api#extract_contacts()

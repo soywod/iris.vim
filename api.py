@@ -92,16 +92,26 @@ def get_flags_str(flags, has_attachment):
 
     return flags_str
     
+def download_attachments(dir, uid, data):
+    attachments = []
+    email = BytesParser(policy=policy.default).parsebytes(data)
+
+    for part in email.walk():
+        if part.is_attachment():
+            attachment_name = part.get_filename()
+            attachment = open(os.path.expanduser(os.path.join(dir, attachment_name)), "wb")
+            attachment.write(part.get_payload(decode=True))
+            attachment.close()
+            attachments.append(attachment_name)
+
+    return attachments
+
 def get_email_content(uid, data):
-    content = dict(text=None, html=None, attachments=[])
+    content = dict(text=None, html=None)
     email = BytesParser(policy=policy.default).parsebytes(data)
 
     for part in email.walk():
         if part.is_multipart():
-            continue
-
-        if part.is_attachment():
-            content["attachments"].append(read_attachment(part, uid))
             continue
 
         if part.get_content_type() == "text/plain":
@@ -126,12 +136,6 @@ def read_text(part):
 def read_html(part, uid):
     payload = read_text(part)
     preview = write_preview(payload.encode(), uid)
-
-    return preview
-
-def read_attachment(part, uid):
-    payload = part.get_payload(decode=True)
-    preview = write_preview(payload, uid, part.get_content_subtype())
 
     return preview
 
@@ -209,6 +213,14 @@ while True:
             response = dict(success=True, type="fetch-email", email=email, format=request["format"])
         except Exception as error:
             response = dict(success=False, type="fetch-email", error=str(error))
+
+    elif request["type"] == "download-attachments":
+        try:
+            fetch = imap_client.fetch([request["id"]], ["BODY[]"])
+            attachments = download_attachments(request["dir"], request["id"], fetch.popitem()[1][b"BODY[]"])
+            response = dict(success=True, type="download-attachments", attachments=attachments)
+        except Exception as error:
+            response = dict(success=False, type="download-attachments", error=str(error))
 
     elif request["type"] == "select-folder":
         try:

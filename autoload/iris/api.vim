@@ -41,6 +41,15 @@ function! s:handle_data(data_raw)
 
   elseif data.type == "extract-contacts"
     call iris#utils#log("contacts extracted!")
+
+  elseif data.type == "download-attachments"
+    let attachments_count = len(data.attachments)
+
+    if attachments_count == 0
+      call iris#utils#log("no attachment found!")
+    else
+      call iris#utils#log(printf("%d attachment(s) downloaded: %s", attachments_count, join(data.attachments, ", ")))
+    endif
   endif
 endfunction
 
@@ -123,6 +132,20 @@ function! iris#api#preview_email(index, format)
     \"type": "fetch-email",
     \"id": emails[index].id,
     \"format": a:format,
+  \})
+endfunction
+
+function! iris#api#download_attachments(index)
+  if a:index < 2 | return iris#utils#elog("email not found") | endif
+
+  let emails = iris#cache#read("emails", [])
+  let index = a:index - 2
+
+  call iris#utils#log("downloading attachments...")
+  call s:send({
+    \"type": "download-attachments",
+    \"id": emails[index].id,
+    \"dir": g:iris_download_dir,
   \})
 endfunction
 
