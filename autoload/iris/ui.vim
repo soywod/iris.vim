@@ -32,10 +32,17 @@ function! iris#ui#select_folder()
   let folder  = iris#cache#read("folder", "INBOX")
   let folders = iris#cache#read("folders", [])
 
-  echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ", ") . ": "
-  let choice = nr2char(getchar())
-
-  call iris#api#select_folder(folders[choice])
+  if &rtp =~ "fzf.vim"
+    call fzf#run({
+      \"source":  folders,
+      \"sink": function("iris#api#select_folder"),
+      \"down": "25%",
+    \})
+  else
+    echo join(map(copy(folders), "printf('%s (%d)', v:val, v:key)"), ", ") . ": "
+    let choice = nr2char(getchar())
+    call iris#api#select_folder(folders[choice])
+  endif
 endfunction
 
 function! iris#ui#list_email()

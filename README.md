@@ -21,7 +21,7 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
     - [Email list](#list-mails)
     - [Email text preview](#email-text-preview)
     - [Email composition](#email-composition)
-    - [Folder](#folder)
+    - [Folders](#folders)
     - [Flags](#flags)
     - [Contacts](#contacts)
   - [Changelog](https://github.com/soywod/iris.vim/blob/master/CHANGELOG.md)
@@ -178,11 +178,19 @@ Function | Default keybind | Override
 Save draft | `:w` |
 Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
 
-### Folder
+### Folders
+
+By default, Iris will display a basic prompt to select your folders:
 
 ```vim
 :IrisFolder
 ```
+
+Iris supports those fuzzy finders:
+
+  - [fzf](https://github.com/junegunn/fzf) ([fzf.vim](https://github.com/junegunn/fzf.vim) need to be installed as well)
+
+*Note: Iris will use the first fuzzy finder available automatically.*
 
 ### Flags
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- fzf support for selecting folders [#29]
+
 ## [1.0.0] - 2020-06-09
 
 ### Added
@@ -52,3 +56,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#19]: https://github.com/soywod/iris.vim/issues/19
 [#20]: https://github.com/soywod/iris.vim/issues/20
 [#21]: https://github.com/soywod/iris.vim/issues/21
+[#29]: https://github.com/soywod/iris.vim/issues/29
