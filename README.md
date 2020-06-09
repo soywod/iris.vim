@@ -2,7 +2,7 @@
 
 Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
 
-![image](https://user-images.githubusercontent.com/10437171/83288749-2db9fb00-a1e4-11ea-9ffa-3f0b6223e3ad.png)
+![image](https://user-images.githubusercontent.com/10437171/84173056-07664c00-aa7d-11ea-919f-a973120a8439.png)
 
 ## Table of contents
 
@@ -154,8 +154,6 @@ Change folder | `gf` (for `go folder`) | `nmap gf <plug>(iris-change-folder)`
 
 ### Email text preview
 
-From the email list, press `<Enter>` to preview the targeted email.
-
 Function | Default keybind | Override
 --- | --- | ---
 Reply | `gr` (for `go reply`) | `nmap gr <plug>(iris-reply-email)`
@@ -184,6 +182,17 @@ Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
 ```vim
 :IrisFolder
 ```
+
+### Flags
+
+Flags appears in the first column of the [#email-list](email list) view. There
+is 5 different flags:
+
+  - `N` if it's a new email
+  - `R` if it has been replied
+  - `F` if it has been flagged
+  - `D` if it's a draft
+  - `@` if it contains an attachment
 
 ### Contacts
 

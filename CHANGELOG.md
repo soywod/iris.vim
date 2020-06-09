@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2020-06-09
+
 ### Added
 
 - `In-Reply-To` header for threads [#7]
@@ -33,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Hide passwords from logs [#20]
 
-[unreleased]: https://github.com/soywod/iris.vim/tree/master
+[unreleased]: https://github.com/soywod/iris.vim/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/soywod/iris.vim/releases/tag/v1.0.0
 
 [#2]: https://github.com/soywod/iris.vim/issues/2
 [#3]: https://github.com/soywod/iris.vim/issues/3
