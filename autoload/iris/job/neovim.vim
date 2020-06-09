@@ -1,3 +1,5 @@
+let s:curr_data = ""
+
 function! iris#job#neovim#start(script, handle_data)
   let cmd = printf("python3 '%s'", a:script)
   let opts = {
@@ -8,15 +10,22 @@ function! iris#job#neovim#start(script, handle_data)
 endfunction
 
 function! s:handle_data(raw_data_list, handler)
-  let raw_data_list = a:raw_data_list
-  if empty(raw_data_list) | return iris#job#close() | endif
+  let curr_list = a:raw_data_list
+  if empty(curr_list) | return iris#job#close() | endif
 
   while 1
-    let eof = index(raw_data_list, "")
-    let raw_data = raw_data_list[:eof-1]
-    let raw_data_list = raw_data_list[eof+1:]
-    call a:handler(join(raw_data, ""))
-    if eof == -1 | break | endif
+    let eof = index(curr_list, "")
+
+    if eof == -1
+      let s:curr_data .= join(curr_list, "")
+      break
+    else
+      let prev_list = curr_list[:eof-1]
+      let curr_list = curr_list[eof+1:]
+      let s:curr_data .= join(prev_list, "")
+      call a:handler(s:curr_data)
+      let s:curr_data = join(curr_list, "")
+    endif
   endwhile
 endfunction
 
