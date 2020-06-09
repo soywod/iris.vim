@@ -22,6 +22,7 @@ Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
     - [Email text preview](#email-text-preview)
     - [Email composition](#email-composition)
     - [Folder](#folder)
+    - [Flags](#flags)
     - [Contacts](#contacts)
   - [Changelog](https://github.com/soywod/iris.vim/blob/master/CHANGELOG.md)
   - [Contributing](#contributing)
@@ -185,7 +186,7 @@ Send | `gs` (for `go send`) | `nmap gs <plug>(iris-send-email)`
 
 ### Flags
 
-Flags appears in the first column of the [#email-list](email list) view. There
+Flags appears in the first column of the [email list](#email-list) view. There
 is 5 different flags:
 
   - `N` if it's a new email
