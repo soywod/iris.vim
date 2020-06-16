@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Disconnection for inactivity [#25]
+
 ### Added
 
 - fzf support for selecting folders [#29]
@@ -56,4 +60,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#19]: https://github.com/soywod/iris.vim/issues/19
 [#20]: https://github.com/soywod/iris.vim/issues/20
 [#21]: https://github.com/soywod/iris.vim/issues/21
+[#25]: https://github.com/soywod/iris.vim/issues/25
 [#29]: https://github.com/soywod/iris.vim/issues/29

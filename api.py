@@ -171,6 +171,18 @@ def decode_contact(contact):
 
     return "@".join([mailbox, host]).lower()
 
+class PreventLogout(threading.Thread):
+    def __init__(self):
+        self.event = threading.Event()
+        super(PreventLogout, self).__init__()
+        self.start()
+
+    def run(self):
+        global imap_client
+        while not self.event.wait(60):
+            logging.info("NOOP")
+            imap_client.noop()
+
 while True:
     request_raw = sys.stdin.readline()
 
@@ -193,9 +205,9 @@ while True:
 
             imap_client = IMAPClient(host=imap_host, port=imap_port)
             imap_client.login(imap_login, imap_passwd)
+            PreventLogout()
 
             folders = list(map(lambda folder: folder[2], imap_client.list_folders()))
-
             response = dict(success=True, type="login", folders=folders)
         except Exception as error:
             response = dict(success=False, type="login", error=str(error))
