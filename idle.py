@@ -2,12 +2,14 @@
 
 import json
 import logging
+import os
 import subprocess
 import sys
 
 from imapclient.imapclient import IMAPClient
 
-logging.basicConfig(filename="/tmp/iris-idle.log", format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
+log_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "iris-idle.log")
+logging.basicConfig(filename=log_filename, format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
 
 request_raw = sys.stdin.readline()
 request = json.loads(request_raw.rstrip())

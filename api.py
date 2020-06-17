@@ -18,7 +18,8 @@ from email.parser import BytesParser, BytesHeaderParser
 from email.utils import formataddr, formatdate, make_msgid
 from imapclient.imapclient import IMAPClient
 
-logging.basicConfig(filename="/tmp/iris-api.log", format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
+log_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "iris-api.log")
+logging.basicConfig(filename=log_filename, format="[%(asctime)s] %(message)s", level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
 
 imap_client = None
 imap_host = imap_port = imap_login = imap_passwd = None
