@@ -97,6 +97,8 @@ let g:iris_imap_passwd_filepath = "/path/to/imap.gpg"
 let g:iris_smtp_passwd_filepath = "/path/to/smtp.gpg"
 ```
 
+Note: `iris_imap_passwd_filepath` & `iris_smtp_password_filepath` must be absolute paths.  For example the path `~/passwords/imap.gpg` would not work because of the `~`.
+
 If you want to use something else than GPG, you can set up your custom command.
 For eg., with the MacOSX `security` tool:
 
