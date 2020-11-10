@@ -1,4 +1,4 @@
-# 📫 Iris.vim  [![ko-fi](https://img.shields.io/badge/ko--fi-Buy%20me%20a%20coffee!-red)](https://ko-fi.com/soywod#linkModal)
+# 📫 Iris.vim
 
 Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
 
