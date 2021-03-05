@@ -1,3 +1,5 @@
+⚠️ *Project archived. Have a look at [himalaya](https://github.com/soywod/himalaya.vim), its successor.*
+
 # 📫 Iris.vim
 
 Simple mail client for Vim, inspired by (Neo)Mutt and Alpine.
