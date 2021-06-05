@@ -1,4 +1,4 @@
-⚠️ *Project archived. Have a look at [himalaya](https://github.com/soywod/himalaya.vim), its successor.*
+⚠️ *Project archived. Have a look at [himalaya](https://github.com/soywod/himalaya), its successor.*
 
 # 📫 Iris.vim
 
