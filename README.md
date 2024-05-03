@@ -1,4 +1,4 @@
-⚠️ *Project archived. Have a look at [himalaya](https://github.com/soywod/himalaya), its successor.*
+⚠️ *Project archived. Have a look at [Himalaya CLI](https://github.com/soywod/himalaya) and [Himalaya Vim](https://git.sr.ht/~soywod/himalaya-vim), their successors.*
 
 # 📫 Iris.vim
 
